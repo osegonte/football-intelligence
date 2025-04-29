@@ -12,9 +12,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 import logging
+import sys
 
-# Import utilities from shared module
-from scraper_utils import (
+# Import utilities from the correct module path
+from scrapers.scraper_utils import (
     get_random_headers, 
     create_data_directories, 
     add_random_delay, 
@@ -438,7 +439,9 @@ class AdvancedSofaScoreScraper:
         total_matches = 0
         
         # Import FBref scraper here to avoid circular imports
-        from fbref_scraper import FBrefScraper
+        # Use absolute imports to avoid circular dependencies
+        sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        from scrapers.fbref_scraper import FBrefScraper
         fbref = FBrefScraper()
         
         # Process each date

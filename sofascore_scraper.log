@@ -1,0 +1,50 @@
+2025-04-29 18:57:49,935 - __main__ - INFO - Fetching matches from 2025-04-29 to 2025-05-02
+2025-04-29 18:57:49,935 - __main__ - INFO - Using multiple fallback methods: API → Browser → FBref
+2025-04-29 18:57:49,943 - scrapers.sofascore_scraper - INFO - Initializing browser session to get cookies...
+2025-04-29 18:57:49,943 - WDM - INFO - ====== WebDriver manager ======
+2025-04-29 18:57:50,016 - WDM - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-29 18:57:50,072 - WDM - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-29 18:57:50,131 - WDM - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-29 18:57:50,281 - WDM - INFO - WebDriver version 135.0.7049.114 selected
+2025-04-29 18:57:50,283 - WDM - INFO - Modern chrome version https://storage.googleapis.com/chrome-for-testing-public/135.0.7049.114/mac-arm64/chromedriver-mac-arm64.zip
+2025-04-29 18:57:50,283 - WDM - INFO - About to download new driver from https://storage.googleapis.com/chrome-for-testing-public/135.0.7049.114/mac-arm64/chromedriver-mac-arm64.zip
+2025-04-29 18:57:50,329 - WDM - INFO - Driver downloading response is 200
+2025-04-29 18:57:50,923 - WDM - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-29 18:57:51,020 - WDM - INFO - Driver has been saved in cache [/Users/osegonte/.wdm/drivers/chromedriver/mac64/135.0.7049.114]
+2025-04-29 18:57:57,612 - scrapers.sofascore_scraper - INFO - Successfully obtained 3 cookies
+2025-04-29 18:57:57,612 - __main__ - ERROR - Error: No module named 'fbref_scraper'
+2025-04-29 18:57:57,615 - __main__ - ERROR - Traceback (most recent call last):
+  File "/Users/osegonte/football-intelligence/main.py", line 71, in main
+    all_matches, total_matches = scraper.fetch_matches_for_date_range(start_date, end_date)
+                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/osegonte/football-intelligence/scrapers/sofascore_scraper.py", line 441, in fetch_matches_for_date_range
+    from fbref_scraper import FBrefScraper
+ModuleNotFoundError: No module named 'fbref_scraper'
+
+2025-04-29 19:02:26,887 - __main__ - INFO - Fetching matches from 2025-04-29 to 2025-05-02
+2025-04-29 19:02:26,888 - __main__ - INFO - Using multiple fallback methods: API → Browser → FBref
+2025-04-29 19:02:26,893 - scrapers.sofascore_scraper - INFO - Initializing browser session to get cookies...
+2025-04-29 19:02:26,893 - WDM - INFO - ====== WebDriver manager ======
+2025-04-29 19:02:27,002 - WDM - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-29 19:02:27,056 - WDM - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-29 19:02:27,117 - WDM - INFO - Driver [/Users/osegonte/.wdm/drivers/chromedriver/mac64/135.0.7049.114/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-29 19:02:33,714 - scrapers.sofascore_scraper - INFO - Successfully obtained 3 cookies
+2025-04-29 19:02:39,519 - scrapers.sofascore_scraper - INFO - Processing date: 2025-04-29
+2025-04-29 19:02:43,930 - scrapers.sofascore_scraper - INFO - Trying API endpoint: https://api.sofascore.com/api/v1/sport/football/scheduled-events/2025-04-29
+2025-04-29 19:02:44,073 - scrapers.sofascore_scraper - INFO - Found 170 events using API
+2025-04-29 19:02:44,077 - scrapers.sofascore_scraper - INFO - Processed 170 matches for 2025-04-29
+2025-04-29 19:02:44,077 - scrapers.sofascore_scraper - INFO - Processing date: 2025-04-30
+2025-04-29 19:02:46,144 - scrapers.sofascore_scraper - INFO - Trying API endpoint: https://api.sofascore.com/api/v1/sport/football/scheduled-events/2025-04-30
+2025-04-29 19:02:46,230 - scrapers.sofascore_scraper - INFO - Found 120 events using API
+2025-04-29 19:02:46,233 - scrapers.sofascore_scraper - INFO - Processed 120 matches for 2025-04-30
+2025-04-29 19:02:46,233 - scrapers.sofascore_scraper - INFO - Processing date: 2025-05-01
+2025-04-29 19:02:48,673 - scrapers.sofascore_scraper - INFO - Trying API endpoint: https://api.sofascore.com/api/v1/sport/football/scheduled-events/2025-05-01
+2025-04-29 19:02:48,806 - scrapers.sofascore_scraper - INFO - Found 131 events using API
+2025-04-29 19:02:48,808 - scrapers.sofascore_scraper - INFO - Processed 131 matches for 2025-05-01
+2025-04-29 19:02:48,808 - scrapers.sofascore_scraper - INFO - Processing date: 2025-05-02
+2025-04-29 19:02:52,709 - scrapers.sofascore_scraper - INFO - Trying API endpoint: https://api.sofascore.com/api/v1/sport/football/scheduled-events/2025-05-02
+2025-04-29 19:02:52,869 - scrapers.sofascore_scraper - INFO - Found 319 events using API
+2025-04-29 19:02:52,874 - scrapers.sofascore_scraper - INFO - Processed 319 matches for 2025-05-02
+2025-04-29 19:02:52,878 - scrapers.sofascore_scraper - INFO - Saved 740 total matches to sofascore_data/all_matches_20250429_to_20250502.csv
+2025-04-29 19:02:52,879 - __main__ - INFO - Successfully fetched 740 matches
+2025-04-29 19:02:52,879 - __main__ - INFO - Data saved to sofascore_data directory

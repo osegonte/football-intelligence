@@ -6,7 +6,7 @@ import pandas as pd
 import logging
 import random
 import requests
-from scraper_utils import (
+from scrapers.scraper_utils import (
     add_random_delay,
     get_random_headers,
     standardize_match_data

@@ -3,7 +3,7 @@ import os
 from datetime import date, timedelta
 import logging
 from scrapers.sofascore_scraper import AdvancedSofaScoreScraper
-from scraper_utils import print_match_statistics
+from scrapers.scraper_utils import print_match_statistics
 
 # Configure logging
 logging.basicConfig(

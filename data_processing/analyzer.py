@@ -7,11 +7,15 @@ class FootballDataAnalyzer:
     
     def get_matches_by_league(self):
         """Count matches per league"""
-        return self.df['league'].value_counts().reset_index()
+        league_counts = self.df['league'].value_counts().reset_index()
+        league_counts.columns = ['league', 'count']
+        return league_counts
     
     def get_matches_by_country(self):
         """Count matches per country"""
-        return self.df['country'].value_counts().reset_index()
+        country_counts = self.df['country'].value_counts().reset_index()
+        country_counts.columns = ['country', 'count']
+        return country_counts
     
     def get_team_appearances(self):
         """Count how many times each team appears in matches"""
@@ -20,7 +24,9 @@ class FootballDataAnalyzer:
         
         # Combine home and away appearances
         all_teams = home_teams.add(away_teams, fill_value=0).sort_values(ascending=False)
-        return all_teams.reset_index()
+        all_teams = all_teams.reset_index()
+        all_teams.columns = ['team', 'appearances']
+        return all_teams
     
     def get_league_distribution_by_day(self):
         """Create a pivot table of match counts by league and day"""

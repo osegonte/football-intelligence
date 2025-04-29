@@ -6,8 +6,10 @@ from datetime import datetime, timedelta
 import os
 import sys
 
-# Add parent directory to path for imports
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add parent directory to path for imports using absolute paths
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(parent_dir)
 
 from data_processing.analyzer import FootballDataAnalyzer
 
@@ -29,7 +31,7 @@ Data is collected daily from multiple sources including SofaScore and FBref.
 st.sidebar.header("Filters")
 
 # Check if data file exists
-data_file = "../data/all_matches_latest.csv"
+data_file = os.path.join(parent_dir, "data", "all_matches_latest.csv")
 if not os.path.exists(data_file):
     st.error(f"Data file not found: {data_file}")
     st.info("Please run the scraper first to collect match data.")
