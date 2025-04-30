@@ -11,4 +11,4 @@ DATABASE_CONFIG = {
 }
 
 # Connection string for SQLAlchemy
-DATABASE_URI = f"postgresql://{DATABASE_CONFIG['osegonte']}:{DATABASE_CONFIG['1759']}@{DATABASE_CONFIG['host']}:{DATABASE_CONFIG['port']}/{DATABASE_CONFIG['database']}"
+DATABASE_URI = f"postgresql://{DATABASE_CONFIG['user']}:{DATABASE_CONFIG['password']}@{DATABASE_CONFIG['host']}:{DATABASE_CONFIG['port']}/{DATABASE_CONFIG['database']}"
