@@ -1,21 +1,18 @@
 # dashboard/app.py
-# Modified to use the new data loader with database support
+# Simplified to use CSV data directly without database support
 
 import streamlit as st
 import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
-from datetime import datetime, timedelta
 import os
 import sys
-import numpy as np
+from datetime import datetime, timedelta
 
-# Add parent directory to path for imports using absolute paths
+# Add parent directory to path for imports
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
-# Import our new data loader
+# Import our simplified data loader
 from dashboard.data_loader import FootballDataLoader
 from dashboard.visualizations import (
     create_matches_by_league_chart,
@@ -35,7 +32,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Apply our existing custom CSS (unmodified)
+# Apply our existing custom CSS
 st.markdown("""
 <style>
     /* Global typography using SF Pro or system font */
@@ -43,11 +40,55 @@ st.markdown("""
         font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'SF Pro Text', 'Helvetica Neue', sans-serif;
     }
     
-    /* (Rest of the CSS styling remains the same) */
+    /* Card containers */
+    .metric-container {
+        background-color: #f5f5f7;
+        border-radius: 10px;
+        padding: 16px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    
+    .metric-container h3 {
+        font-size: 14px !important;
+        color: #6e6e73;
+        margin-top: 0;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+    
+    .metric-container h2 {
+        font-size: 32px !important;
+        margin: 0;
+        font-weight: 600;
+        color: #1d1d1f;
+    }
+    
+    /* Match card styling */
+    .match-card {
+        background-color: #ffffff;
+        border-radius: 10px;
+        padding: 12px 16px;
+        margin-bottom: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    
+    /* Section container */
+    .section {
+        margin-bottom: 24px;
+    }
+    
+    /* Footer styles */
+    footer {
+        text-align: center;
+        color: #86868b;
+        font-size: 12px !important;
+        margin-top: 48px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# Title and description using SF Pro styling
+# Title and description
 st.markdown("""
 # ⚽ Football Match Intelligence
 """)
@@ -58,16 +99,15 @@ Advanced football analytics dashboard with match data from major leagues
 </p>
 """, unsafe_allow_html=True)
 
-# Initialize the data loader
-# Try to use database first, with fallback to CSV
+# Initialize the data loader - removed use_db parameter
 try:
-    data_loader = FootballDataLoader(use_db=True, csv_fallback=True)
+    data_loader = FootballDataLoader()
     df = data_loader.load_fixtures()
     source_info = data_loader.get_data_source_info()
     st.sidebar.success(f"Data source: {source_info['source']}")
 except Exception as e:
     st.error(f"⚠️ Error loading data: {str(e)}")
-    st.info("Please check your database connection or run the scraper to collect match data.")
+    st.info("Please run the scraper to collect match data.")
     st.stop()
 
 # Create sidebar with Apple-inspired styling
@@ -224,15 +264,11 @@ with tab1:
     
     with col1:
         st.markdown("### Matches by League")
-        
-        # Use the enhanced chart function
         fig = create_matches_by_league_chart(filtered_df)
         st.plotly_chart(fig, use_container_width=True)
     
     with col2:
         st.markdown("### Matches by Country")
-        
-        # Use the enhanced chart function
         fig = create_matches_by_country_chart(filtered_df)
         st.plotly_chart(fig, use_container_width=True)
     st.markdown("</div>", unsafe_allow_html=True)
@@ -278,12 +314,13 @@ with tab2:
                 for _, match in league_matches.iterrows():
                     # Status indicator color
                     status_color = "#6e6e73"  # Default gray
-                    if match['status'] == 'Ended':
-                        status_color = "#8e8e93"  # Darker gray for ended
-                    elif match['status'] == '1st half' or match['status'] == '2nd half':
-                        status_color = "#34c759"  # Green for live
-                    elif match['status'] == 'Not started':
-                        status_color = "#007aff"  # Blue for upcoming
+                    if 'status' in match:
+                        if match['status'] == 'Ended':
+                            status_color = "#8e8e93"  # Darker gray for ended
+                        elif match['status'] == '1st half' or match['status'] == '2nd half':
+                            status_color = "#34c759"  # Green for live
+                        elif match['status'] == 'Not started':
+                            status_color = "#007aff"  # Blue for upcoming
                         
                     st.markdown(f"""
                     <div class="match-card">
@@ -295,9 +332,9 @@ with tab2:
                                 </div>
                             </div>
                             <div style="text-align: right;">
-                                <div style="font-weight: 600;">{match['start_time']}</div>
+                                <div style="font-weight: 600;">{match.get('start_time', 'TBD')}</div>
                                 <div style="font-size: 13px !important; color: {status_color}; margin-top: 4px;">
-                                    {match['status']}
+                                    {match.get('status', 'Unknown')}
                                 </div>
                             </div>
                         </div>
@@ -400,7 +437,7 @@ with tab4:
                     <div style="text-align: right;">
                         <div style="font-weight: 600;">{match['date'].strftime('%a, %b %d')}</div>
                         <div style="color: #86868b; font-size: 13px !important; margin-top: 4px;">
-                            {match['start_time']}
+                            {match.get('start_time', 'TBD')}
                         </div>
                     </div>
                 </div>

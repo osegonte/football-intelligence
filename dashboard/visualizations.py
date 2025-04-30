@@ -20,7 +20,106 @@ def create_matches_by_league_chart(df, top_n=10):
     league_counts.columns = ['league', 'count']
     
     # Take top N leagues
-    top_n = min(top_n, len(league_counts    )
+    top_n = min(top_n, len(league_counts))
+    top_leagues = league_counts.head(top_n)
+    
+    # Create bar chart with Apple-style colors and design
+    # Using a single accent color with tints instead of a rainbow gradient
+    fig = px.bar(
+        top_leagues,
+        x='league',
+        y='count',
+        title=None,
+        labels={'league': '', 'count': 'Number of Matches'},
+        color_discrete_sequence=['#007aff'],  # Apple blue as a single color
+        template="plotly_white"
+    )
+    
+    # Add data labels on top of bars
+    fig.update_traces(
+        texttemplate='%{y}',
+        textposition='outside',
+        hovertemplate='<b>%{x}</b><br>Matches: %{y}<extra></extra>',
+        marker_line_width=0  # Remove borders on bars
+    )
+    
+    # Update layout with clean Apple-style design
+    fig.update_layout(
+        xaxis_tickangle=-45,
+        xaxis_title=None,
+        yaxis_title=None,
+        margin=dict(t=0, b=80, l=20, r=20),
+        hoverlabel=dict(bgcolor="white", font_size=14),
+        font=dict(family="-apple-system, BlinkMacSystemFont, 'SF Pro', 'SF Pro Text', 'Helvetica Neue', sans-serif"),
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        xaxis=dict(
+            tickfont=dict(size=12),
+            gridcolor='rgba(0,0,0,0.05)'  # Subtle grid lines
+        ),
+        yaxis=dict(
+            gridcolor='rgba(0,0,0,0.05)'  # Subtle grid lines
+        )
+    )
+    
+    return fig
+
+def create_matches_by_country_chart(df, top_n=10):
+    """
+    Create an Apple-style bar chart of matches by country
+    
+    Args:
+        df: DataFrame with match data
+        top_n: Number of top countries to display
+        
+    Returns:
+        Plotly figure
+    """
+    # Get match counts
+    country_counts = df['country'].value_counts().reset_index()
+    country_counts.columns = ['country', 'count']
+    
+    # Take top N countries
+    top_n = min(top_n, len(country_counts))
+    top_countries = country_counts.head(top_n)
+    
+    # Create bar chart with Apple-style colors and design
+    fig = px.bar(
+        top_countries,
+        x='country',
+        y='count',
+        title=None,
+        labels={'country': '', 'count': 'Number of Matches'},
+        color_discrete_sequence=['#34c759'],  # Apple green for variety
+        template="plotly_white"
+    )
+    
+    # Add data labels on top of bars
+    fig.update_traces(
+        texttemplate='%{y}',
+        textposition='outside',
+        hovertemplate='<b>%{x}</b><br>Matches: %{y}<extra></extra>',
+        marker_line_width=0  # Remove borders on bars
+    )
+    
+    # Update layout with clean Apple-style design
+    fig.update_layout(
+        xaxis_tickangle=-45,
+        xaxis_title=None,
+        yaxis_title=None,
+        margin=dict(t=0, b=80, l=20, r=20),
+        hoverlabel=dict(bgcolor="white", font_size=14),
+        font=dict(family="-apple-system, BlinkMacSystemFont, 'SF Pro', 'SF Pro Text', 'Helvetica Neue', sans-serif"),
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        xaxis=dict(
+            tickfont=dict(size=12),
+            gridcolor='rgba(0,0,0,0.05)'
+        ), 
+        yaxis=dict(
+            gridcolor='rgba(0,0,0,0.05)'
+        )
+    )
     
     return fig
 
@@ -400,102 +499,3 @@ def create_match_timeline(df, days_range=7):
     )
     
     return fig
-    top_leagues = league_counts.head(top_n)
-    
-    # Create bar chart with Apple-style colors and design
-    # Using a single accent color with tints instead of a rainbow gradient
-    fig = px.bar(
-        top_leagues,
-        x='league',
-        y='count',
-        title=None,
-        labels={'league': '', 'count': 'Number of Matches'},
-        color_discrete_sequence=['#007aff'],  # Apple blue as a single color
-        template="plotly_white"
-    )
-    
-    # Add data labels on top of bars
-    fig.update_traces(
-        texttemplate='%{y}',
-        textposition='outside',
-        hovertemplate='<b>%{x}</b><br>Matches: %{y}<extra></extra>',
-        marker_line_width=0  # Remove borders on bars
-    )
-    
-    # Update layout with clean Apple-style design
-    fig.update_layout(
-        xaxis_tickangle=-45,
-        xaxis_title=None,
-        yaxis_title=None,
-        margin=dict(t=0, b=80, l=20, r=20),
-        hoverlabel=dict(bgcolor="white", font_size=14),
-        font=dict(family="-apple-system, BlinkMacSystemFont, 'SF Pro', 'SF Pro Text', 'Helvetica Neue', sans-serif"),
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-        xaxis=dict(
-            tickfont=dict(size=12),
-            gridcolor='rgba(0,0,0,0.05)'  # Subtle grid lines
-        ),
-        yaxis=dict(
-            gridcolor='rgba(0,0,0,0.05)'  # Subtle grid lines
-        )
-    )
-    
-    return fig
-
-def create_matches_by_country_chart(df, top_n=10):
-    """
-    Create an Apple-style bar chart of matches by country
-    
-    Args:
-        df: DataFrame with match data
-        top_n: Number of top countries to display
-        
-    Returns:
-        Plotly figure
-    """
-    # Get match counts
-    country_counts = df['country'].value_counts().reset_index()
-    country_counts.columns = ['country', 'count']
-    
-    # Take top N countries
-    top_n = min(top_n, len(country_counts))
-    top_countries = country_counts.head(top_n)
-    
-    # Create bar chart with Apple-style colors and design
-    fig = px.bar(
-        top_countries,
-        x='country',
-        y='count',
-        title=None,
-        labels={'country': '', 'count': 'Number of Matches'},
-        color_discrete_sequence=['#34c759'],  # Apple green for variety
-        template="plotly_white"
-    )
-    
-    # Add data labels on top of bars
-    fig.update_traces(
-        texttemplate='%{y}',
-        textposition='outside',
-        hovertemplate='<b>%{x}</b><br>Matches: %{y}<extra></extra>',
-        marker_line_width=0  # Remove borders on bars
-    )
-    
-    # Update layout with clean Apple-style design
-    fig.update_layout(
-        xaxis_tickangle=-45,
-        xaxis_title=None,
-        yaxis_title=None,
-        margin=dict(t=0, b=80, l=20, r=20),
-        hoverlabel=dict(bgcolor="white", font_size=14),
-        font=dict(family="-apple-system, BlinkMacSystemFont, 'SF Pro', 'SF Pro Text', 'Helvetica Neue', sans-serif"),
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-        xaxis=dict(
-            tickfont=dict(size=12),
-            gridcolor='rgba(0,0,0,0.05)'
-        ), 
-        yaxis=dict(
-            gridcolor='rgba(0,0,0,0.05)'
-        )
-    )

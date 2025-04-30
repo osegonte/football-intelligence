@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+"""
+Simple script to run the Football Intelligence dashboard.
+Ensures data files exist and launches the Streamlit app.
+"""
 import os
 import sys
 import subprocess
@@ -53,22 +57,14 @@ def ensure_data_file_exists():
     return False
 
 def run_dashboard():
-    """Run the enhanced football dashboard"""
+    """Run the football dashboard"""
     script_dir = os.path.dirname(os.path.abspath(__file__))
     
-    # Check if the enhanced dashboard exists
-    enhanced_dashboard = os.path.join(script_dir, "dashboard", "enhanced_app.py")
-    original_dashboard = os.path.join(script_dir, "dashboard", "app.py")
+    # Check for the dashboard file
+    dashboard_file = os.path.join(script_dir, "dashboard", "app.py")
     
-    # Determine which dashboard file to use
-    if os.path.exists(enhanced_dashboard):
-        dashboard_file = enhanced_dashboard
-        print("✓ Using enhanced dashboard")
-    elif os.path.exists(original_dashboard):
-        dashboard_file = original_dashboard
-        print("✓ Using original dashboard")
-    else:
-        print("✗ Dashboard file not found.")
+    if not os.path.exists(dashboard_file):
+        print(f"✗ Dashboard file not found at: {dashboard_file}")
         return False
     
     # Run the dashboard using streamlit
