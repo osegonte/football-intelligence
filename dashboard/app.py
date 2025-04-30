@@ -5,6 +5,9 @@ import plotly.graph_objects as go
 from datetime import datetime, timedelta
 import os
 import sys
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Add parent directory to path for imports using absolute paths
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -13,12 +16,57 @@ sys.path.append(parent_dir)
 
 from data_processing.analyzer import FootballDataAnalyzer
 
+# Set page configuration
 st.set_page_config(
     page_title="Football Intelligence Dashboard",
     page_icon="⚽",
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# Apply custom CSS
+st.markdown("""
+<style>
+    .main {
+        background-color: #f9f9f9;
+    }
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 2px;
+    }
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        white-space: pre-wrap;
+        background-color: #f0f2f6;
+        border-radius: 4px 4px 0 0;
+        gap: 1px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: #4f8bf9;
+        color: white;
+    }
+    .metric-container {
+        background-color: white;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .match-card {
+        background-color: white;
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 10px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .league-header {
+        background-color: #e6e6e6;
+        padding: 5px 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # Title and description
 st.title("⚽ Football Match Intelligence Dashboard")
@@ -27,56 +75,42 @@ This dashboard provides analytics and insights for upcoming football matches acr
 Data is collected daily from multiple sources including SofaScore and FBref.
 """)
 
-# Sidebar filters
-st.sidebar.header("Filters")
-
 # Check if data file exists
-data_file = os.path.join(parent_dir, "sofascore_data", "all_matches_latest.csv")
+data_file = os.path.join(parent_dir, "data", "all_matches_latest.csv")
 if not os.path.exists(data_file):
-    st.error(f"Data file not found: {data_file}")
-    st.info("Please run the scraper first to collect match data.")
-    
-    # Add instructions on how to run the scraper
-    st.markdown("""
-    ### How to collect match data
-    
-    Run the scraper using one of the following methods:
-    
-    **Option 1:** Run the data collection script directly:
-    ```bash
-    python main.py --days 7 --stats
-    ```
-    
-    **Option 2:** Use the run_all.sh script for a complete setup:
-    ```bash
-    ./run_all.sh
-    ```
-    """)
+    data_file = os.path.join(parent_dir, "sofascore_data", "all_matches_latest.csv")
+
+if not os.path.exists(data_file):
+    st.error(f"Data file not found. Please run the scraper first to collect match data.")
+    st.info("You can run the scraper with: python main.py --days 7 --stats")
     st.stop()
 
 # Load data
 @st.cache_data
 def load_data():
-    return pd.read_csv(data_file)
+    df = pd.read_csv(data_file)
+    if 'date' in df.columns:
+        df['date'] = pd.to_datetime(df['date'])
+    return df
 
 df = load_data()
 
 # Create analyzer
 analyzer = FootballDataAnalyzer(data_file)
 
-# Date range filter\
-# Date range filter
-# Date range filter
-df['date'] = pd.to_datetime(df['date'])
-min_date = df['date'].min().date()  # Convert to date object
-max_date = df['date'].max().date()  # Convert to date object
+# Sidebar filters
+st.sidebar.header("Filters")
 
-# Calculate default end date within available range
-default_end_date = min(min_date + timedelta(days=3), max_date)
+# Date range filter
+min_date = df['date'].min().date()
+max_date = df['date'].max().date()
+
+# Ensure the default end date doesn't exceed the maximum date in the dataset
+default_end_date = min(min_date + timedelta(days=7), max_date)
 
 date_range = st.sidebar.date_input(
     "Date Range",
-    value=(min_date, default_end_date),  # Use the calculated default_end_date
+    value=(min_date, default_end_date),
     min_value=min_date,
     max_value=max_date
 )
@@ -84,23 +118,27 @@ date_range = st.sidebar.date_input(
 if len(date_range) == 2:
     start_date, end_date = date_range
     filtered_df = df[(df['date'].dt.date >= start_date) & 
-                     (df['date'].dt.date <= end_date)]
+                    (df['date'].dt.date <= end_date)]
 else:
     filtered_df = df
 
 # League filter
 all_leagues = sorted(df['league'].unique())
+default_leagues = ["Premier League", "La Liga", "Bundesliga", "Serie A", "Ligue 1"]
+# Ensure default leagues actually exist in the data
+default_leagues = [league for league in default_leagues if league in all_leagues]
+
 selected_leagues = st.sidebar.multiselect(
     "Select Leagues",
     options=all_leagues,
-    default=["Premier League", "LaLiga", "Bundesliga", "Serie A", "Ligue 1"]
+    default=default_leagues if default_leagues else all_leagues[:5]
 )
 
 if selected_leagues:
     filtered_df = filtered_df[filtered_df['league'].isin(selected_leagues)]
 
 # Country filter
-all_countries = sorted(df['country'].unique())
+all_countries = sorted(filtered_df['country'].unique())
 selected_countries = st.sidebar.multiselect(
     "Select Countries",
     options=all_countries,
@@ -110,154 +148,152 @@ selected_countries = st.sidebar.multiselect(
 if selected_countries:
     filtered_df = filtered_df[filtered_df['country'].isin(selected_countries)]
 
-# Status filter
-all_statuses = sorted(df['status'].unique())
-selected_statuses = st.sidebar.multiselect(
-    "Select Match Status",
-    options=all_statuses,
-    default=[]
+# Team filter
+all_teams = set()
+for team in filtered_df['home_team'].unique():
+    all_teams.add(team)
+for team in filtered_df['away_team'].unique():
+    all_teams.add(team)
+all_teams = sorted(list(all_teams))
+
+selected_team = st.sidebar.selectbox(
+    "Filter by Team",
+    options=["All Teams"] + all_teams,
+    index=0
 )
 
-if selected_statuses:
-    filtered_df = filtered_df[filtered_df['status'].isin(selected_statuses)]
+if selected_team != "All Teams":
+    filtered_df = filtered_df[(filtered_df['home_team'] == selected_team) | 
+                              (filtered_df['away_team'] == selected_team)]
 
-# Dashboard main content
-st.header("Match Overview")
+# Create tabs for different dashboard sections
+tab1, tab2, tab3, tab4 = st.tabs(["📊 Overview", "📆 Schedule", "📈 Analytics", "🔍 Teams"])
 
-# Match count metrics
-col1, col2, col3 = st.columns(3)
-with col1:
-    st.metric("Total Matches", len(filtered_df))
-with col2:
-    st.metric("Leagues", filtered_df['league'].nunique())
-with col3:
-    st.metric("Countries", filtered_df['country'].nunique())
-
-# Visualizations
-st.header("Analytics")
-
-# Create tabs for different visualizations
-tab1, tab2, tab3, tab4 = st.tabs(["Leagues", "Countries", "Match Calendar", "Teams"])
-
-# Tab 1: Leagues
 with tab1:
-    # Matches by league
-    st.subheader("Top 10 Leagues by Match Count")
-    matches_by_league = analyzer.get_matches_by_league()
+    st.header("Match Overview")
     
-    if not matches_by_league.empty:
-        top_leagues = matches_by_league.head(10)
-        fig = px.bar(
-            top_leagues,
-            x='league',
-            y='count',
-            title="Top 10 Leagues by Match Count",
-            labels={'league': 'League', 'count': 'Number of Matches'},
-            color='count',
-            color_continuous_scale=px.colors.sequential.Blues
-        )
-        st.plotly_chart(fig, use_container_width=True)
+    # Match count metrics
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        with st.container():
+            st.markdown('<div class="metric-container">', unsafe_allow_html=True)
+            st.metric("Total Matches", len(filtered_df))
+            st.markdown('</div>', unsafe_allow_html=True)
+    with col2:
+        with st.container():
+            st.markdown('<div class="metric-container">', unsafe_allow_html=True)
+            st.metric("Leagues", filtered_df['league'].nunique())
+            st.markdown('</div>', unsafe_allow_html=True)
+    with col3:
+        with st.container():
+            st.markdown('<div class="metric-container">', unsafe_allow_html=True)
+            st.metric("Countries", filtered_df['country'].nunique())
+            st.markdown('</div>', unsafe_allow_html=True)
+    with col4:
+        with st.container():
+            st.markdown('<div class="metric-container">', unsafe_allow_html=True)
+            days_count = filtered_df['date'].dt.date.nunique()
+            st.metric("Days", days_count)
+            st.markdown('</div>', unsafe_allow_html=True)
     
-    # League distribution by day
-    st.subheader("Match Distribution by League and Day")
-    league_by_day = analyzer.get_league_distribution_by_day()
+    st.subheader("Matches by League")
     
-    if not league_by_day.empty:
-        fig = px.imshow(
-            league_by_day,
-            title="Match Distribution by League and Day",
-            labels=dict(x="Day of Week", y="League", color="Match Count"),
-            color_continuous_scale="Viridis"
-        )
-        st.plotly_chart(fig, use_container_width=True)
-
-# Tab 2: Countries
-with tab2:
+    # Get match counts by league
+    league_counts = filtered_df['league'].value_counts().reset_index()
+    league_counts.columns = ['league', 'count']
+    
+    # Show top N leagues
+    top_n = min(10, len(league_counts))
+    top_leagues = league_counts.head(top_n)
+    
+    # Create bar chart
+    fig = px.bar(
+        top_leagues,
+        x='league',
+        y='count',
+        title=f"Top {top_n} Leagues by Match Count",
+        labels={'league': 'League', 'count': 'Number of Matches'},
+        color='count',
+        color_continuous_scale=px.colors.sequential.Blues
+    )
+    fig.update_layout(xaxis_tickangle=-45)
+    st.plotly_chart(fig, use_container_width=True)
+    
     # Matches by country
-    st.subheader("Top 10 Countries by Match Count")
+    st.subheader("Matches by Country")
     country_counts = filtered_df['country'].value_counts().reset_index()
     country_counts.columns = ['country', 'count']
     
-    top_countries = country_counts.head(10)
+    # Show top N countries
+    top_n = min(10, len(country_counts))
+    top_countries = country_counts.head(top_n)
+    
+    # Create bar chart
     fig = px.bar(
         top_countries,
         x='country',
         y='count',
-        title="Top 10 Countries by Match Count",
+        title=f"Top {top_n} Countries by Match Count",
         labels={'country': 'Country', 'count': 'Number of Matches'},
         color='count',
-        color_continuous_scale=px.colors.sequential.Reds
+        color_continuous_scale=px.colors.sequential.Viridis
     )
+    fig.update_layout(xaxis_tickangle=-45)
     st.plotly_chart(fig, use_container_width=True)
-    
-    # World map of matches
-    st.subheader("Global Match Distribution")
-    # Note: This would require country codes for a proper map
-    # For now we'll just display a table of all countries
-    all_country_counts = country_counts.sort_values(by='count', ascending=False)
-    st.dataframe(all_country_counts)
 
-# Tab 3: Match Calendar
+with tab2:
+    st.header("Match Schedule")
+    
+    # Group by date and display matches
+    filtered_df = filtered_df.sort_values(['date', 'start_time'])
+    dates = filtered_df['date'].dt.date.unique()
+    
+    for date in dates:
+        st.subheader(f"{date.strftime('%A, %B %d, %Y')}")
+        day_matches = filtered_df[filtered_df['date'].dt.date == date]
+        
+        for league in sorted(day_matches['league'].unique()):
+            league_matches = day_matches[day_matches['league'] == league]
+            with st.expander(f"{league} ({len(league_matches)} matches)", expanded=True):
+                for _, match in league_matches.iterrows():
+                    st.markdown(f"""
+                    <div class="match-card">
+                        <strong>{match['home_team']}</strong> vs <strong>{match['away_team']}</strong>
+                        <span style="float:right">{match['start_time']}</span>
+                        <p><small>{match['country']} • {match['league']}</small></p>
+                    </div>
+                    """, unsafe_allow_html=True)
+
 with tab3:
-    st.subheader("Match Calendar")
+    st.header("Advanced Analytics")
     
-    # Create a data frame for calendar view
-    calendar_df = filtered_df.copy()
-    calendar_df['day'] = calendar_df['date'].dt.day_name()
-    calendar_df['week'] = calendar_df['date'].dt.isocalendar().week
+    # Team appearances (combined home and away)
+    st.subheader("Team Appearances")
     
-    # Create pivot table
-    pivot = calendar_df.pivot_table(
-        index='week', 
-        columns='day',
-        values='id', 
-        aggfunc='count', 
-        fill_value=0
-    )
+    # Create a function to count team appearances
+    def get_team_appearances(df):
+        home_teams = df['home_team'].value_counts()
+        away_teams = df['away_team'].value_counts()
+        
+        all_teams = home_teams.add(away_teams, fill_value=0).sort_values(ascending=False)
+        all_teams = all_teams.reset_index()
+        all_teams.columns = ['team', 'appearances']
+        return all_teams
     
-    # Create heatmap
-    fig = px.imshow(
-        pivot,
-        title="Match Calendar Heatmap",
-        labels=dict(x="Day of Week", y="Week", color="Match Count"),
-        color_continuous_scale="Viridis"
-    )
-    st.plotly_chart(fig, use_container_width=True)
+    # Get team appearances
+    team_appearances = get_team_appearances(filtered_df)
     
-    # Match count by date
-    dates_df = filtered_df['date'].dt.date.value_counts().reset_index()
-    dates_df.columns = ['date', 'matches']
-    dates_df = dates_df.sort_values('date')
+    # Show top N teams
+    top_n = min(15, len(team_appearances))
+    top_teams = team_appearances.head(top_n)
     
-    fig = px.line(
-        dates_df,
-        x='date',
-        y='matches',
-        title="Matches per Day",
-        labels={'date': 'Date', 'matches': 'Number of Matches'},
-        markers=True
-    )
-    st.plotly_chart(fig, use_container_width=True)
-
-# Tab 4: Teams
-with tab4:
-    st.subheader("Team Analysis")
-    
-    # Count home and away appearances
-    home_teams = filtered_df['home_team'].value_counts()
-    away_teams = filtered_df['away_team'].value_counts()
-    
-    # Combine counts
-    all_teams = home_teams.add(away_teams, fill_value=0).sort_values(ascending=False)
-    all_teams = all_teams.head(20).reset_index()
-    all_teams.columns = ['team', 'appearances']
-    
+    # Create horizontal bar chart
     fig = px.bar(
-        all_teams,
+        top_teams,
         y='team',
         x='appearances',
         orientation='h',
-        title="Top 20 Teams by Match Appearances",
+        title=f"Top {top_n} Teams by Match Appearances",
         labels={'appearances': 'Number of Matches', 'team': 'Team'},
         color='appearances',
         color_continuous_scale=px.colors.sequential.Plasma
@@ -265,57 +301,93 @@ with tab4:
     
     fig.update_layout(yaxis={'categoryorder': 'total ascending'})
     st.plotly_chart(fig, use_container_width=True)
-
-# Upcoming matches
-st.header("Upcoming Matches")
-
-# Add a search box for teams
-search_team = st.text_input("Search for a team:")
-
-# Format the match display
-def format_match(row):
-    return f"{row['home_team']} vs {row['away_team']} | {row['league']} | {row['start_time']}"
-
-# Apply search filter if provided
-if search_team:
-    search_term = search_team.lower()
-    filtered_df = filtered_df[
-        filtered_df['home_team'].str.lower().str.contains(search_term) | 
-        filtered_df['away_team'].str.lower().str.contains(search_term)
-    ]
-
-# Group by date and display matches
-filtered_df = filtered_df.sort_values(['date', 'start_time'])
-dates = filtered_df['date'].dt.date.unique()
-
-for date in dates:
-    st.write(f"**{date.strftime('%A, %B %d, %Y')}**")
-    day_matches = filtered_df[filtered_df['date'].dt.date == date]
     
-    # Group by league
-    leagues = day_matches['league'].unique()
+    # Matches by day of week
+    st.subheader("Matches by Day of Week")
     
-    for league in leagues:
-        league_matches = day_matches[day_matches['league'] == league]
-        with st.expander(f"{league} ({len(league_matches)} matches)"):
-            for _, match in league_matches.iterrows():
-                status_color = ""
-                if match['status'] == 'Ended':
-                    status_color = "gray"
-                elif match['status'] == 'Not started':
-                    status_color = "blue"
-                else:
-                    status_color = "green"
-                
-                st.markdown(
-                    f"• **{match['home_team']}** vs **{match['away_team']}** | "
-                    f"{match['start_time']} | "
-                    f"<span style='color:{status_color}'>{match['status']}</span>", 
-                    unsafe_allow_html=True
-                )
+    # Add day of week column
+    filtered_df['day_of_week'] = filtered_df['date'].dt.day_name()
     
-    st.write("---")
+    # Define the correct order of days
+    day_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    
+    # Count matches by day of week
+    day_counts = filtered_df['day_of_week'].value_counts().reindex(day_order).reset_index()
+    day_counts.columns = ['day_of_week', 'count']
+    
+    # Create bar chart
+    fig = px.bar(
+        day_counts,
+        x='day_of_week',
+        y='count',
+        title="Matches by Day of Week",
+        labels={'day_of_week': 'Day of Week', 'count': 'Number of Matches'},
+        color='count',
+        color_continuous_scale=px.colors.sequential.Greens
+    )
+    st.plotly_chart(fig, use_container_width=True)
+    
+    # League distribution by day
+    st.subheader("League Distribution by Day")
+    
+    # Use the analyzer to get the distribution
+    league_by_day = analyzer.get_league_distribution_by_day()
+    
+    if not league_by_day.empty:
+        # Sort the day columns in correct order
+        day_columns = [day for day in day_order if day in league_by_day.columns]
+        league_by_day = league_by_day[day_columns]
+        
+        # Select top leagues for better visualization
+        top_leagues = league_by_day.sum(axis=1).sort_values(ascending=False).head(15).index
+        league_by_day_filtered = league_by_day.loc[top_leagues]
+        
+        fig = px.imshow(
+            league_by_day_filtered,
+            title="Match Distribution by League and Day of Week (Top 15 Leagues)",
+            labels=dict(x="Day of Week", y="League", color="Match Count"),
+            color_continuous_scale="Viridis",
+            aspect="auto"
+        )
+        fig.update_layout(height=600)
+        st.plotly_chart(fig, use_container_width=True)
 
-# Footer
+with tab4:
+    st.header("Team Analysis")
+    
+    if selected_team != "All Teams":
+        st.subheader(f"Analysis for {selected_team}")
+        
+        # Count home and away matches
+        home_matches = filtered_df[filtered_df['home_team'] == selected_team]
+        away_matches = filtered_df[filtered_df['away_team'] == selected_team]
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown(f"**Home Matches:** {len(home_matches)}")
+        with col2:
+            st.markdown(f"**Away Matches:** {len(away_matches)}")
+        
+        # List all matches
+        st.subheader("Upcoming Matches")
+        team_matches = pd.concat([home_matches, away_matches]).sort_values('date')
+        
+        for _, match in team_matches.iterrows():
+            is_home = match['home_team'] == selected_team
+            opponent = match['away_team'] if is_home else match['home_team']
+            location = "Home" if is_home else "Away"
+            
+            st.markdown(f"""
+            <div class="match-card">
+                <strong>{match['home_team']} vs {match['away_team']}</strong>
+                <span style="float:right">{match['date'].strftime('%Y-%m-%d')} • {match['start_time']}</span>
+                <p>{match['league']} • {location} match against {opponent}</p>
+            </div>
+            """, unsafe_allow_html=True)
+    else:
+        st.info("Select a team from the sidebar to view detailed team analysis.")
+
+# Footer with data source information
 st.markdown("---")
-st.markdown("⚽ Football Intelligence Dashboard | Data refreshed daily")
+st.markdown("⚽ Football Intelligence Dashboard | Data source: SofaScore & FBref | Last updated: " + 
+            datetime.now().strftime("%Y-%m-%d %H:%M"))
