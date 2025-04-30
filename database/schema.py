@@ -54,7 +54,8 @@ class Team(Base):
     country = relationship("Country", back_populates="teams")
     home_fixtures = relationship("Fixture", foreign_keys="Fixture.home_team_id", back_populates="home_team")
     away_fixtures = relationship("Fixture", foreign_keys="Fixture.away_team_id", back_populates="away_team")
-    stats = relationship("TeamStats", back_populates="team")
+    # Explicitly specify the foreign key for stats relationship
+    stats = relationship("TeamStats", foreign_keys="TeamStats.team_id", back_populates="team")
 
 class Fixture(Base):
     __tablename__ = 'fixtures'
@@ -115,7 +116,7 @@ class TeamStats(Base):
     source = Column(String(50))
     scrape_date = Column(DateTime)
     
-    # Relationships
+    # Relationships - explicitly specify foreign keys for clarity
     team = relationship("Team", foreign_keys=[team_id], back_populates="stats")
     opponent = relationship("Team", foreign_keys=[opponent_id])
     fixture = relationship("Fixture", back_populates="stats")

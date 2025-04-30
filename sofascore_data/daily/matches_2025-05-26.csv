@@ -1,0 +1,248 @@
+id,home_team,away_team,league,country,start_timestamp,start_time,status,venue,round,source
+12436536,Bournemouth,Leicester City,Premier League,England,1748182500,16:15,Not started,,38,api
+12436559,Fulham,Manchester City,Premier League,England,1748193300,19:15,Not started,,38,api
+12436538,Ipswich Town,West Ham United,Premier League,England,1748185200,17:00,Not started,,38,api
+12436548,Liverpool,Crystal Palace,Premier League,England,1748191500,18:45,Not started,,38,api
+12436540,Manchester United,Aston Villa,Premier League,England,1748189700,18:15,Not started,,38,api
+12436541,Newcastle United,Everton,Premier League,England,1748183400,16:30,Not started,,38,api
+12436556,Nottingham Forest,Chelsea,Premier League,England,1748179800,15:30,Not started,,38,api
+12436549,Southampton,Arsenal,Premier League,England,1748194200,19:30,Not started,,38,api
+12436557,Tottenham Hotspur,Brighton & Hove Albion,Premier League,England,1748188800,18:00,Not started,,38,api
+12436542,Wolverhampton,Brentford,Premier League,England,1748184300,16:45,Not started,,38,api
+12501544,Atalanta,Parma,Serie A,Italy,1748180700,15:45,Not started,,38,api
+12501543,Bologna,Genoa,Serie A,Italy,1748186100,17:15,Not started,,38,api
+12501501,Como,Inter,Serie A,Italy,1748185200,17:00,Not started,,38,api
+12501519,Empoli,Hellas Verona,Serie A,Italy,1748186100,17:15,Not started,,38,api
+12501517,Lazio,Lecce,Serie A,Italy,1748178000,15:00,Not started,,38,api
+12501503,Milan,Monza,Serie A,Italy,1748181600,16:00,Not started,,38,api
+12501502,Napoli,Cagliari,Serie A,Italy,1748170800,13:00,Not started,,38,api
+12501508,Torino,Roma,Serie A,Italy,1748177100,14:45,Not started,,38,api
+12501527,Udinese,Fiorentina,Serie A,Italy,1748174400,14:00,Not started,,38,api
+12501507,Venezia,Juventus,Serie A,Italy,1748177100,14:45,Not started,,38,api
+12437503,Athletic Club,Barcelona,LaLiga,Spain,1748196900,20:15,Not started,,38,api
+12437507,Deportivo Alavés,Osasuna,LaLiga,Spain,1748204100,22:15,Not started,,38,api
+12437663,Espanyol,Las Palmas,LaLiga,Spain,1748199600,21:00,Not started,,38,api
+12437516,Getafe,Celta Vigo,LaLiga,Spain,1748196000,20:00,Not started,,38,api
+12437509,Girona FC,Atlético Madrid,LaLiga,Spain,1748199600,21:00,Not started,,38,api
+12437511,Leganés,Real Valladolid,LaLiga,Spain,1748205000,22:30,Not started,,38,api
+12437508,Rayo Vallecano,Mallorca,LaLiga,Spain,1748205900,22:45,Not started,,38,api
+12437510,Real Betis,Valencia,LaLiga,Spain,1748206800,23:00,Not started,,38,api
+12437506,Real Madrid,Real Sociedad,LaLiga,Spain,1748196900,20:15,Not started,,38,api
+12437512,Villarreal,Sevilla,LaLiga,Spain,1748207700,23:15,Not started,,38,api
+13473435,Grêmio,Bahia,Brasileirão Betano,Brazil,1748179800,15:30,Not started,,10,api
+13473430,Palmeiras,Flamengo,Brasileirão Betano,Brazil,1748196900,20:15,Not started,,10,api
+13473438,Sport Recife,Internacional,Brasileirão Betano,Brazil,1748203200,22:00,Not started,,10,api
+13473436,Vitória,Santos,Brasileirão Betano,Brazil,1748210400,00:00,Not started,,10,api
+13473437,Fortaleza,Cruzeiro,Brasileirão Betano,Brazil,1748210400,00:00,Not started,,10,api
+13473432,Red Bull Bragantino,Juventude,Brasileirão Betano,Brazil,1748308500,03:15,Not started,,10,api
+12528072,Başakşehir FK,Adana Demirspor,Super Lig,Turkey,1748188800,18:00,Not started,,37,api
+12528089,Beşiktaş,Çaykur Rizespor,Super Lig,Turkey,1748184300,16:45,Not started,,37,api
+12528076,Eyüpspor,Antalyaspor,Super Lig,Turkey,1748192400,19:00,Not started,,37,api
+12528075,Gaziantep FK,Kasımpaşa,Super Lig,Turkey,1748190600,18:30,Not started,,37,api
+12528126,Göztepe,Galatasaray,Super Lig,Turkey,1748182500,16:15,Not started,,37,api
+12528128,Hatayspor,Fenerbahçe,Super Lig,Turkey,1748190600,18:30,Not started,,37,api
+12528092,Kayserispor,Bodrum FK,Super Lig,Turkey,1748188800,18:00,Not started,,37,api
+12528083,Konyaspor,Alanyaspor,Super Lig,Turkey,1748186100,17:15,Not started,,37,api
+12528087,Trabzonspor,Samsunspor,Super Lig,Turkey,1748185200,17:00,Not started,,37,api
+13631423,Club Brugge KV,Royal Antwerp FC,"First Division A, Championship Round",Belgium,1748182500,16:15,Not started,,10,api
+13631427,KRC Genk,RSC Anderlecht,"First Division A, Championship Round",Belgium,1748189700,18:15,Not started,,10,api
+13631419,Royale Union Saint-Gilloise,KAA Gent,"First Division A, Championship Round",Belgium,1748190600,18:30,Not started,,10,api
+13807880,Benfica,Sporting,Taça de Portugal,Portugal,1748191500,18:45,Not started,,29,api
+13299397,New York City FC,Chicago Fire,MLS,USA,1748206800,23:00,Not started,,,api
+13299401,Atlanta United,FC Cincinnati,MLS,USA,1748219400,02:30,Not started,,,api
+12465915,Albacete Balompié,Racing de Ferrol,LaLiga 2,Spain,1748204100,22:15,Not started,,41,api
+12465931,Burgos Club de Fútbol,Levante UD,LaLiga 2,Spain,1748201400,21:30,Not started,,41,api
+12465977,CD Eldense,Racing de Santander,LaLiga 2,Spain,1748208600,23:30,Not started,,41,api
+12465929,CD Tenerife,Real Oviedo,LaLiga 2,Spain,1748192400,19:00,Not started,,41,api
+12465920,Cádiz,Huesca,LaLiga 2,Spain,1748208600,23:30,Not started,,41,api
+12465923,Eibar,Córdoba,LaLiga 2,Spain,1748196900,20:15,Not started,,41,api
+12465925,Elche,Málaga,LaLiga 2,Spain,1748207700,23:15,Not started,,41,api
+12465919,Granada,CD Castellón,LaLiga 2,Spain,1748195100,19:45,Not started,,41,api
+12465916,Mirandés,Almería,LaLiga 2,Spain,1748197800,20:30,Not started,,41,api
+12465930,Real Zaragoza,Deportivo La Coruña,LaLiga 2,Spain,1748193300,19:15,Not started,,41,api
+12465924,Sporting Gijón,FC Cartagena,LaLiga 2,Spain,1748205900,22:45,Not started,,41,api
+13525924,Novorizontino,Paysandu SC,Brasileirão Série B,Brazil,1748216700,01:45,Not started,,9,api
+13525920,Amazonas FC,Operário-PR,Brasileirão Série B,Brazil,1748212200,00:30,Not started,,9,api
+13443585,Deportes Limache,Universidad de Chile,Liga de Primera,Chile,1748181600,16:00,Not started,,12,api
+13443597,Ñublense,O'Higgins,Liga de Primera,Chile,1748191500,18:45,Not started,,12,api
+13443589,Universidad Católica,Deportes La Serena,Liga de Primera,Chile,1748200500,21:15,Not started,,12,api
+13443591,Deportes Iquique,Unión La Calera,Liga de Primera,Chile,1748222100,03:15,Not started,,12,api
+13443599,Audax Italiano,Huachipato,Liga de Primera,Chile,1748301300,01:15,Not started,,12,api
+13358713,Alianza Valledupar FC,Independiente Santa Fe,"Primera A, Apertura",Colombia,1748195100,19:45,Not started,,20,api
+13358705,América de Cali,Independiente Medellín,"Primera A, Apertura",Colombia,1748200500,21:15,Not started,,20,api
+13358712,Atlético Bucaramanga,Deportivo Pasto,"Primera A, Apertura",Colombia,1748195100,19:45,Not started,,20,api
+13358703,Atlético Nacional,Junior Barranquilla,"Primera A, Apertura",Colombia,1748198700,20:45,Not started,,20,api
+13358698,Deportes Tolima,Rionegro Águilas Doradas,"Primera A, Apertura",Colombia,1748200500,21:15,Not started,,20,api
+13358706,Deportivo Pereira,Deportivo La Equidad,"Primera A, Apertura",Colombia,1748187900,17:45,Not started,,20,api
+13358697,Envigado FC,Llaneros FC,"Primera A, Apertura",Colombia,1748196000,20:00,Not started,,20,api
+13358696,Fortaleza CEIF,Unión Magdalena,"Primera A, Apertura",Colombia,1748187900,17:45,Not started,,20,api
+13358710,Millonarios,Boyacá Chicó FC,"Primera A, Apertura",Colombia,1748201400,21:30,Not started,,20,api
+13358711,Once Caldas,Deportivo Cali,"Primera A, Apertura",Colombia,1748187000,17:30,Not started,,20,api
+13790981,Dukla Praha,SK Dynamo České Budějovice,"1. Liga, Relegation",Czech Republic,1748181600,16:00,Not started,,5,api
+13790985,FK Teplice,FK Pardubice,"1. Liga, Relegation",Czech Republic,1748181600,16:00,Not started,,5,api
+13790984,Mladá Boleslav,1. FC Slovácko,"1. Liga, Relegation",Czech Republic,1748187900,17:45,Not started,,5,api
+13638552,AGF,Brøndby IF,"Superligaen, Championship round",Denmark,1748192400,19:00,Not started,,32,api
+13638555,FC København,FC Nordsjælland,"Superligaen, Championship round",Denmark,1748179800,15:30,Not started,,32,api
+13638549,FC Midtjylland,Randers FC,"Superligaen, Championship round",Denmark,1748184300,16:45,Not started,,32,api
+13737789,Club Always Ready,San Antonio Bulo-Bulo,División Profesional,Bolivia,1748203200,22:00,Not started,,9,api
+13737801,GV San José,CDT Real Oruro,División Profesional,Bolivia,1748198700,20:45,Not started,,9,api
+13737797,Guabirá,Oriente Petrolero,División Profesional,Bolivia,1748215800,01:30,Not started,,9,api
+13737794,The Strongest,Academia del Balompié Boliviano,División Profesional,Bolivia,1748297700,00:15,Not started,,9,api
+13737793,Independiente Petrolero,Club Aurora,División Profesional,Bolivia,1748313000,04:30,Not started,,9,api
+13378670,Barcelona SC,Deportivo Cuenca,"LigaPro Serie A, Primera Etapa",Ecuador,1748176200,14:30,Not started,,14,api
+13378668,Independiente Del Valle,Mushuc Runa,"LigaPro Serie A, Primera Etapa",Ecuador,1748182500,16:15,Not started,,14,api
+13378667,Libertad,Macará,"LigaPro Serie A, Primera Etapa",Ecuador,1748187900,17:45,Not started,,14,api
+13378669,Técnico Universitario,Delfín,"LigaPro Serie A, Primera Etapa",Ecuador,1748202300,21:45,Not started,,14,api
+13378662,El Nacional,Emelec,"LigaPro Serie A, Primera Etapa",Ecuador,1748216700,01:45,Not started,,14,api
+13573890,Ceramica Cleopatra,Haras El Hedoud,"Premier League, Championship Round",Egypt,1748186100,17:15,Not started,,25,api
+13573881,ENPPI,ZED FC,"Premier League, Relegation Round",Egypt,1748188800,18:00,Not started,,25,api
+13573926,Ismaily,El Gouna FC,"Premier League, Relegation Round",Egypt,1748199600,21:00,Not started,,25,api
+13575599,Modern Sport FC,Al-Ittihad Alexandria,"Premier League, Relegation Round",Egypt,1748200500,21:15,Not started,,25,api
+13573894,Tala'ea El-Gaish,Ghazl El Mahalla,"Premier League, Relegation Round",Egypt,1748273400,17:30,Not started,,25,api
+13292903,HamKam,Molde FK,Eliteserien,Norway,1748178000,15:00,Not started,,8,api
+13292904,Kristiansund BK,Viking FK,Eliteserien,Norway,1748182500,16:15,Not started,,8,api
+13292905,Sandefjord Fotball,Strømsgodset,Eliteserien,Norway,1748194200,19:30,Not started,,8,api
+13292906,Sarpsborg 08,Tromsø IL,Eliteserien,Norway,1748194200,19:30,Not started,,8,api
+13292907,Haugesund,SK Brann,Eliteserien,Norway,1748199600,21:00,Not started,,8,api
+13292908,KFUM Oslo,Vålerenga IF,Eliteserien,Norway,1748275200,18:00,Not started,,8,api
+12624376,Al-Ettifaq,Al-Wehda,Saudi Pro League,Saudi Arabia,1748274300,17:45,Not started,,34,api
+12624382,Al-Fateh,Al-Nassr,Saudi Pro League,Saudi Arabia,1748283300,20:15,Not started,,34,api
+12624387,Al-Fayha,Al-Shabab,Saudi Pro League,Saudi Arabia,1748275200,18:00,Not started,,34,api
+12624380,Al-Hilal,Al-Qadsiah,Saudi Pro League,Saudi Arabia,1748279700,19:15,Not started,,34,api
+12624378,Al-Ittihad,Damac FC,Saudi Pro League,Saudi Arabia,1748280600,19:30,Not started,,34,api
+12624375,Al-Khaleej,Al-Okhdood,Saudi Pro League,Saudi Arabia,1748276100,18:15,Not started,,34,api
+12624372,Al-Orobah,Al-Taawoun,Saudi Pro League,Saudi Arabia,1748287800,21:30,Not started,,34,api
+12624385,Al-Raed,Al-Kholood,Saudi Pro League,Saudi Arabia,1748287800,21:30,Not started,,34,api
+12624388,Al-Riyadh,Al-Ahli,Saudi Pro League,Saudi Arabia,1748271600,17:00,Not started,,34,api
+13292606,Halmstads BK,IF Elfsborg,Allsvenskan,Sweden,1748171700,13:15,Not started,,11,api
+13292601,IFK Göteborg,Malmö FF,Allsvenskan,Sweden,1748171700,13:15,Not started,,11,api
+13292593,Djurgårdens IF,BK Häcken,Allsvenskan,Sweden,1748176200,14:30,Not started,,11,api
+13292597,IF Brommapojkarna,AIK,Allsvenskan,Sweden,1748182500,16:15,Not started,,11,api
+13292604,IFK Norrköping,Mjällby AIF,Allsvenskan,Sweden,1748282400,20:00,Not started,,11,api
+13292595,Hammarby IF,Degerfors IF,Allsvenskan,Sweden,1748283000,20:10,Not started,,11,api
+13493598,York United FC,Vancouver FC,Canadian Premier League,Canada,1748190600,18:30,Not started,,8,api
+13493597,Cavalry FC,Valour FC,Canadian Premier League,Canada,1748205900,22:45,Not started,,8,api
+13278960,Westchester SC,Richmond Kickers,"USL, League One",USA,1748204100,22:15,Not started,,,api
+13278959,Texoma FC,Greenville Triumph SC,"USL, League One",USA,1748201400,21:30,Not started,,,api
+13278958,FC Naples,Union Omaha SC,"USL, League One",USA,1748214000,01:00,Not started,,,api
+13403249,San Diego Wave FC,North Carolina Courage,NWSL,USA,1748231100,05:45,Not started,,10,api
+13335339,Daegu FC,Jeonbuk Hyundai Motors,K-League 1,South Korea,1748344500,13:15,Not started,,16,api
+13335338,Daejeon Hana Citizen,Pohang Steelers,K-League 1,South Korea,1748347200,14:00,Not started,,16,api
+13335337,Suwon FC,Jeju SK,K-League 1,South Korea,1748332800,10:00,Not started,,16,api
+13522903,Suwon Samsung Bluewings,Gimpo FC,K-League 2,South Korea,1748176200,14:30,Not started,,13,api
+13831001,Simba SC,RS Berkane,"CAF Confederations Cup, Knockout stage",Africa,1748179800,15:30,Not started,,29,api
+12484520,Admira Wacker,SV Horn,2. Liga,Austria,1748197800,20:30,Not started,,30,api
+12484519,Floridsdorfer AC,Sturm Graz II,2. Liga,Austria,1748185200,17:00,Not started,,30,api
+12484524,Kapfenberger SV,Schwarz-Weiß Bregenz,2. Liga,Austria,1748189700,18:15,Not started,,30,api
+12484526,Rapid Wien II,SV Stripfing,2. Liga,Austria,1748187900,17:45,Not started,,30,api
+12484521,SC Austria Lustenau,ASK Voitsberg,2. Liga,Austria,1748180700,15:45,Not started,,30,api
+12484527,SKU Amstetten,FC Liefering,2. Liga,Austria,1748194200,19:30,Not started,,30,api
+12484523,SV Lafnitz,SKN St. Pölten,2. Liga,Austria,1748181600,16:00,Not started,,30,api
+12484525,SV Ried,First Vienna,2. Liga,Austria,1748186100,17:15,Not started,,30,api
+13666691,FK Borac Banja Luka,HŠK Posušje,WWIN Liga BiH,Bosnia & Herzegovina,1748187000,17:30,Not started,,32,api
+13666695,FK Sarajevo,FK Radnik Bijeljina,WWIN Liga BiH,Bosnia & Herzegovina,1748177100,14:45,Not started,,32,api
+13666707,FK Sloboda Tuzla,GOŠK Gabela,WWIN Liga BiH,Bosnia & Herzegovina,1748178000,15:00,Not started,,32,api
+13666700,FK Sloga Doboj,NK Široki Brijeg,WWIN Liga BiH,Bosnia & Herzegovina,1748181600,16:00,Not started,,32,api
+13666697,FK Željezničar,FK Velež Mostar,WWIN Liga BiH,Bosnia & Herzegovina,1748173500,13:45,Not started,,32,api
+13666694,HŠK Zrinjski Mostar,Igman Konjic,WWIN Liga BiH,Bosnia & Herzegovina,1748169000,12:30,Not started,,32,api
+13557308,Anápolis,Maringá FC,Brasileirão Série C,Brazil,1748190600,18:30,Not started,,7,api
+13557311,Brusque,São Bernardo,Brasileirão Série C,Brazil,1748193300,19:15,Not started,,7,api
+13557306,Guarani,Figueirense,Brasileirão Série C,Brazil,1748203200,22:00,Not started,,7,api
+13557307,Ituano,Floresta,Brasileirão Série C,Brazil,1748197800,20:30,Not started,,7,api
+13557304,Náutico,Ponte Preta,Brasileirão Série C,Brazil,1748208600,23:30,Not started,,7,api
+13557310,Ypiranga FC,Tombense,Brasileirão Série C,Brazil,1748201400,21:30,Not started,,7,api
+13790725,Cherno More Varna,Levski Sofia,"First Professional League, Championship Round",Bulgaria,1748277000,18:30,Not started,,36,api
+13790728,Ludogorets,Arda Kardzhali,"First Professional League, Championship Round",Bulgaria,1748273400,17:30,Not started,,36,api
+13792041,Botev Vratsa,Slavia Sofia,"First Professional League, Relegation Round",Bulgaria,1748201400,21:30,Not started,,37,api
+13798086,FK Krumovgrad,FK Septemvri Sofia,"First Professional League, Relegation Round",Bulgaria,1748190600,18:30,Not started,,37,api
+13798231,Lokomotiv Plovdiv,FC CSKA 1948 Sofia,"First Professional League, Relegation Round",Bulgaria,1748204100,22:15,Not started,,37,api
+13792037,Lokomotiv Sofia,FK Hebar Pazardzhik,"First Professional League, Relegation Round",Bulgaria,1748196900,20:15,Not started,,37,api
+13792044,Beroe Stara Zagora,FK Spartak Varna,"First Professional League, Qualifying Round",Bulgaria,1748286900,21:15,Not started,,36,api
+13792049,Botev Plovdiv,CSKA Sofia,"First Professional League, Qualifying Round",Bulgaria,1748277000,18:30,Not started,,36,api
+13809658,Curicó Unido,Antofagasta,Liga de Ascenso,Chile,1748185200,17:00,Not started,,11,api
+13809650,Santiago Wanderers,Santiago Morning,Liga de Ascenso,Chile,1748203200,22:00,Not started,,11,api
+13809652,Unión San Felipe,Universidad de Concepción,Liga de Ascenso,Chile,1748195100,19:45,Not started,,11,api
+13567173,Dalian Kuncheng City,Foshan Nanshi,Chinese League 1,China,1748164500,11:15,Not started,,10,api
+13563528,Shanghai Jiading Huilong,Shaanxi Union FC,Chinese League 1,China,1748173500,13:45,Not started,,10,api
+13563529,Suzhou Dongwu,Liaoning Tieren FC,Chinese League 1,China,1748173500,13:45,Not started,,10,api
+13563530,Chongqing Tonglianglong FC,Guangxi Pingguo Haliao,Chinese League 1,China,1748177100,14:45,Not started,,10,api
+13563526,Shijiazhuang Gongfu,Nanjing City,Chinese League 1,China,1748163600,11:00,Not started,,10,api
+13563531,Yanbian Longding,Jiangxi Dingnan United,Chinese League 1,China,1748249100,10:45,Not started,,10,api
+13563533,Qingdao Red Lions,Nantong Zhiyun,Chinese League 1,China,1748251800,11:30,Not started,,10,api
+13563532,Shenzhen Juniors FC,Guangzhou E-Power FC,Chinese League 1,China,1748263500,14:45,Not started,,10,api
+12449265,1. SK Prostějov,MFK Vyškov,FNL,Czech Republic,1748187900,17:45,Not started,,30,api
+12449282,Baník Ostrava B,Sparta Praha B U21,FNL,Czech Republic,1748186100,17:15,Not started,,30,api
+12449261,FC Sellier & Bellot Vlašim,Slezský FC Opava,FNL,Czech Republic,1748185200,17:00,Not started,,30,api
+12449273,FC Zbrojovka Brno,Vysočina Jihlava,FNL,Czech Republic,1748189700,18:15,Not started,,30,api
+12449264,FC Zlín,SK Líšeň,FNL,Czech Republic,1748176200,14:30,Not started,,30,api
+12449262,FK Viktoria Žižkov,FK Varnsdorf,FNL,Czech Republic,1748177100,14:45,Not started,,30,api
+12449266,SK Sigma Olomouc B,MFK Chrudim,FNL,Czech Republic,1748177100,14:45,Not started,,30,api
+12449280,SK Slavia Praha B,FC Silon Táborsko,FNL,Czech Republic,1748187900,17:45,Not started,,30,api
+13781542,Thisted,Ishøj IF,"2nd Division, Relegation",Denmark,1748169000,12:30,Not started,,29,api
+13715416,France U17,Albania U17,"U17 European Championship, Group A",Europe,1748203200,22:00,Not started,,3,api
+13715417,Portugal U17,Germany U17,"U17 European Championship, Group A",Europe,1748200500,21:15,Not started,,3,api
+13715418,Belgium U17,Italy U17,"U17 European Championship, Group B",Europe,1748292300,22:45,Not started,,3,api
+13715419,Czechia U17,England U17,"U17 European Championship, Group B",Europe,1748283300,20:15,Not started,,3,api
+13342376,KuPS,VPS,Veikkausliiga,Finland,1748176200,14:30,Not started,,,api
+13342378,SJK,Inter Turku,Veikkausliiga,Finland,1748196000,20:00,Not started,,,api
+13378495,FC Lahti,KäPa,Ykkosliiga,Finland,1748181600,16:00,Not started,,7,api
+13378494,HJK Klubi 04,PK-35,Ykkosliiga,Finland,1748187000,17:30,Not started,,7,api
+13378498,EIF,Jippo Joensuu,Ykkosliiga,Finland,1748182500,16:15,Not started,,7,api
+13378497,JäPS,SJK Akatemia,Ykkosliiga,Finland,1748193300,19:15,Not started,,7,api
+13378496,SalPa,TPS,Ykkosliiga,Finland,1748178000,15:00,Not started,,7,api
+13554088,FC Samgurali Tskhaltubo,Dinamo Batumi,Erovnuli Liga,Georgia,1748184300,16:45,Not started,,17,api
+13554092,Dinamo Tbilisi,FC Torpedo Kutaisi,Erovnuli Liga,Georgia,1748341800,12:30,Not started,,17,api
+13554091,FC Gagra,FC Telavi,Erovnuli Liga,Georgia,1748350800,15:00,Not started,,17,api
+13554089,Gareji,FC Iberia 1999,Erovnuli Liga,Georgia,1748334600,10:30,Not started,,17,api
+13380101,Accra Hearts of Oak,Accra Lions FC,Premier League,Ghana,1748186100,17:15,Not started,,32,api
+13380083,Aduana Stars FC,Legon Cities,Premier League,Ghana,1748180700,15:45,Not started,,32,api
+13380078,Bechem United,Basake Holy Stars FC,Premier League,Ghana,1748182500,16:15,Not started,,32,api
+13380091,Bibiani Gold Stars FC,Asante Kotoko SC,Premier League,Ghana,1748180700,15:45,Not started,,32,api
+13380095,Dreams,Berekum Chelsea,Premier League,Ghana,1748181600,16:00,Not started,,32,api
+13380102,Medeama,Nsoatreman FC,Premier League,Ghana,1748187900,17:45,Not started,,32,api
+13380239,Nations FC,Samartex,Premier League,Ghana,1748181600,16:00,Not started,,32,api
+13380240,Vision FC,Karela United,Premier League,Ghana,1748184300,16:45,Not started,,32,api
+13380238,Young Apostles FC,Heart of Lions,Premier League,Ghana,1748190600,18:30,Not started,,32,api
+13306042,FH Hafnarfjörður,Breidablik Kópavogur,Efsta deild,Iceland,1748208600,23:30,Not started,,8,api
+13306041,KR Reykjavík,Fram Reykjavík,Efsta deild,Iceland,1748196000,20:00,Not started,,8,api
+13494656,BFC Daugava Daugavpils,FS Jelgava,Virsliga,Latvia,1748181600,16:00,Not started,,15,api
+13494658,FK Tukums 2000,RFS,Virsliga,Latvia,1748190600,18:30,Not started,,15,api
+13494660,Grobiņas SC,SK Super Nova,Virsliga,Latvia,1748271600,17:00,Not started,,15,api
+13489013,FK Riteriai,FC Hegelmann,A Lyga,Lithuania,1748176200,14:30,Not started,,13,api
+13489014,FK Žalgiris,Dainava Alytus,A Lyga,Lithuania,1748178000,15:00,Not started,,13,api
+13489015,Džiugas Telšiai,FK Sūduva Marijampolė,A Lyga,Lithuania,1748195100,19:45,Not started,,13,api
+13268510,Egersund,Sogndal IL,1st Division,Norway,1748186100,17:15,Not started,,8,api
+13268511,Hødd IL,Odds BK,1st Division,Norway,1748179800,15:30,Not started,,8,api
+13268509,Åsane,Ranheim IL,1st Division,Norway,1748187000,17:30,Not started,,8,api
+13335989,Flekkerøy,Træff,"2nd Division, Group 1",Norway,1748165400,11:30,Not started,,7,api
+13335986,Vard Haugesund,Brattvåg,"2nd Division, Group 1",Norway,1748171700,13:15,Not started,,7,api
+13335990,Notodden FK,Jerv,"2nd Division, Group 1",Norway,1748174400,14:00,Not started,,7,api
+13335991,Arendal,SK Brann II,"2nd Division, Group 1",Norway,1748193300,19:15,Not started,,7,api
+13335794,Grorud,Follo,"2nd Division, Group 2",Norway,1748178000,15:00,Not started,,7,api
+13335795,Hønefoss BK,Kjelsås,"2nd Division, Group 2",Norway,1748181600,16:00,Not started,,7,api
+13299619,Stabæk Fotball,LSK Kvinner FK,"Toppserien, Women",Norway,1748184300,16:45,Not started,,11,api
+12420848,Bruk-Bet Termalica Nieciecza,Kotwica Kołobrzeg,I liga,Poland,1748187000,17:30,Not started,,34,api
+12420849,GKS Tychy,Górnik Łęczna,I liga,Poland,1748192400,19:00,Not started,,34,api
+12420858,OKS Odra Opole,Chrobry Głogów,I liga,Poland,1748183400,16:30,Not started,,34,api
+12420851,Pogoń Siedlce,Warta Poznań,I liga,Poland,1748195100,19:45,Not started,,34,api
+12420846,Ruch Chorzów,Polonia Warszawa,I liga,Poland,1748178900,15:15,Not started,,34,api
+12420844,Stal Rzeszów,Wisła Kraków,I liga,Poland,1748178900,15:15,Not started,,34,api
+12420857,Stal Stalowa Wola,MZKS Arka Gdynia,I liga,Poland,1748193300,19:15,Not started,,34,api
+12420843,Wisła Płock,Miedź Legnica,I liga,Poland,1748180700,15:45,Not started,,34,api
+12420832,ŁKS Łódź,Znicz Pruszków,I liga,Poland,1748195100,19:45,Not started,,34,api
+12246916,Balestier Khalsa,Albirex Niigata Singapore,Premier League,Singapore,1748172600,13:30,Not started,,36,api
+12246917,Tanjong Pagar United,Geylang International,Premier League,Singapore,1748165400,11:30,Not started,,36,api
+13709764,Lion City Sailors,Brunei DPMM FC,"Singapore Cup, Playoffs",Singapore,1748340000,12:00,Not started,,28,api
+13709750,Tampines Rovers,BG Pathum United,"Singapore Cup, Playoffs",Singapore,1748350800,15:00,Not started,,28,api
+13292659,Varbergs BoIS,Kalmar FF,Superettan,Sweden,1748174400,14:00,Not started,,10,api
+13292653,IK Brage,Utsiktens BK,Superettan,Sweden,1748277000,18:30,Not started,,10,api
+13292654,IK Oddevold,Västerås SK,Superettan,Sweden,1748278800,19:00,Not started,,10,api
+13292655,Landskrona BoIS,Falkenbergs FF,Superettan,Sweden,1748286900,21:15,Not started,,10,api
+13292658,Umeå,Örgryte IS,Superettan,Sweden,1748280600,19:30,Not started,,10,api
+13548921,Örebro Syrianska BK,Team TG FF,"Ettan, Norra",Sweden,1748179800,15:30,Not started,,9,api
+13549013,Assyriska FF,Nordic United FC,"Ettan, Norra",Sweden,1748180700,15:45,Not started,,9,api
+13292748,Djurgårdens IF DFF,IF Brommapojkarna,Damallsvenskan,Sweden,1748183400,16:30,Not started,,9,api
+13292751,Piteå IF,Linköpings FC,Damallsvenskan,Sweden,1748176200,14:30,Not started,,9,api
+13526166,Quảng Nam,Hồng Lĩnh Hà Tĩnh,V-League 1,Vietnam,1748159100,09:45,Not started,,24,api
+13526154,Đông Á Thanh Hóa,Quy Nhơn Bình Định FC,V-League 1,Vietnam,1748163600,11:00,Not started,,24,api
+13526152,Công An Hà Nội,Hà Nội,V-League 1,Vietnam,1748178900,15:15,Not started,,24,api

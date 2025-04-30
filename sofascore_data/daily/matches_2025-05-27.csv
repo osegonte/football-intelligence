@@ -1,0 +1,59 @@
+id,home_team,away_team,league,country,start_timestamp,start_time,status,venue,round,source
+13640364,Botafogo,Universidad de Chile,"CONMEBOL Libertadores, Group A",South America,1748400300,04:45,Not started,,6,api
+13640365,Estudiantes de La Plata,Carabobo,"CONMEBOL Libertadores, Group A",South America,1748387700,01:15,Not started,,6,api
+13640368,Independiente Del Valle,Barcelona SC,"CONMEBOL Libertadores, Group B",South America,1748387700,01:15,Not started,,6,api
+13640367,River Plate,Universitario,"CONMEBOL Libertadores, Group B",South America,1748400300,04:45,Not started,,6,api
+13640363,Libertad,Alianza Lima,"CONMEBOL Libertadores, Group D",South America,1748390400,02:00,Not started,,6,api
+13640361,São Paulo,Talleres,"CONMEBOL Libertadores, Group D",South America,1748391300,02:15,Not started,,6,api
+13640470,América de Cali,Racing de Montevideo,"CONMEBOL Sudamericana, Group C",South America,1748388600,01:30,Not started,,6,api
+13640471,Huracán,Corinthians,"CONMEBOL Sudamericana, Group C",South America,1748395800,03:30,Not started,,6,api
+13640468,Lanús,Academia Puerto Cabello,"CONMEBOL Sudamericana, Group G",South America,1748376900,22:15,Not started,,6,api
+13640469,Vasco da Gama,Melgar,"CONMEBOL Sudamericana, Group G",South America,1748375100,21:45,Not started,,6,api
+13473432,Red Bull Bragantino,Juventude,Brasileirão Betano,Brazil,1748306700,02:45,Not started,,10,api
+13443599,Audax Italiano,Huachipato,Liga de Primera,Chile,1748304000,02:00,Not started,,12,api
+13737794,The Strongest,Academia del Balompié Boliviano,División Profesional,Bolivia,1748297700,00:15,Not started,,9,api
+13737793,Independiente Petrolero,Club Aurora,División Profesional,Bolivia,1748308500,03:15,Not started,,9,api
+13737795,Jorge Wilstermann,CD Real Tomayapo,División Profesional,Bolivia,1748388600,01:30,Not started,,9,api
+13573894,Tala'ea El-Gaish,Ghazl El Mahalla,"Premier League, Relegation Round",Egypt,1748278800,19:00,Not started,,25,api
+13482024,Urawa Red Diamonds,Cerezo Osaka,J.League,Japan,1748423700,11:15,Not started,,22,api
+13292908,KFUM Oslo,Vålerenga IF,Eliteserien,Norway,1748272500,17:15,Not started,,8,api
+12624376,Al-Ettifaq,Al-Wehda,Saudi Pro League,Saudi Arabia,1748275200,18:00,Not started,,34,api
+12624382,Al-Fateh,Al-Nassr,Saudi Pro League,Saudi Arabia,1748269800,16:30,Not started,,34,api
+12624387,Al-Fayha,Al-Shabab,Saudi Pro League,Saudi Arabia,1748276100,18:15,Not started,,34,api
+12624380,Al-Hilal,Al-Qadsiah,Saudi Pro League,Saudi Arabia,1748284200,20:30,Not started,,34,api
+12624378,Al-Ittihad,Damac FC,Saudi Pro League,Saudi Arabia,1748287800,21:30,Not started,,34,api
+12624375,Al-Khaleej,Al-Okhdood,Saudi Pro League,Saudi Arabia,1748280600,19:30,Not started,,34,api
+12624372,Al-Orobah,Al-Taawoun,Saudi Pro League,Saudi Arabia,1748269800,16:30,Not started,,34,api
+12624385,Al-Raed,Al-Kholood,Saudi Pro League,Saudi Arabia,1748284200,20:30,Not started,,34,api
+12624388,Al-Riyadh,Al-Ahli,Saudi Pro League,Saudi Arabia,1748286000,21:00,Not started,,34,api
+13292604,IFK Norrköping,Mjällby AIF,Allsvenskan,Sweden,1748276100,18:15,Not started,,11,api
+13292595,Hammarby IF,Degerfors IF,Allsvenskan,Sweden,1748283900,20:25,Not started,,11,api
+13335339,Daegu FC,Jeonbuk Hyundai Motors,K-League 1,South Korea,1748334600,10:30,Not started,,16,api
+13335338,Daejeon Hana Citizen,Pohang Steelers,K-League 1,South Korea,1748332800,10:00,Not started,,16,api
+13335337,Suwon FC,Jeju SK,K-League 1,South Korea,1748341800,12:30,Not started,,16,api
+13335341,Gangwon FC,FC Anyang,K-League 1,South Korea,1748421900,10:45,Not started,,16,api
+13335340,Gimcheon Sangmu FC,FC Seoul,K-League 1,South Korea,1748419200,10:00,Not started,,16,api
+13335342,Gwangju FC,Ulsan HD,K-League 1,South Korea,1748426400,12:00,Not started,,16,api
+13051806,FCM Traiskirchen,Young Violets Austria Wien,Regionalliga Ost,Austria Amateur,1748363400,18:30,Not started,,30,api
+13790725,Cherno More Varna,Levski Sofia,"First Professional League, Championship Round",Bulgaria,1748275200,18:00,Not started,,36,api
+13790728,Ludogorets,Arda Kardzhali,"First Professional League, Championship Round",Bulgaria,1748277900,18:45,Not started,,36,api
+13792044,Beroe Stara Zagora,FK Spartak Varna,"First Professional League, Qualifying Round",Bulgaria,1748285100,20:45,Not started,,36,api
+13792049,Botev Plovdiv,CSKA Sofia,"First Professional League, Qualifying Round",Bulgaria,1748279700,19:15,Not started,,36,api
+13563532,Shenzhen Juniors FC,Guangzhou E-Power FC,Chinese League 1,China,1748266200,15:30,Not started,,10,api
+13554423,FC Kuressaare,Flora Tallinn,Premium Liiga,Estonia,1748353500,15:45,Not started,,14,api
+13554422,Tartu JK Tammeka,Tallinna Kalev,Premium Liiga,Estonia,1748355300,16:15,Not started,,14,api
+13554424,Narva Trans,Harju Jalgpallikool,Premium Liiga,Estonia,1748357100,16:45,Not started,,14,api
+13715418,Belgium U17,Italy U17,"U17 European Championship, Group B",Europe,1748284200,20:30,Not started,,3,api
+13715419,Czechia U17,England U17,"U17 European Championship, Group B",Europe,1748285100,20:45,Not started,,3,api
+13554092,Dinamo Tbilisi,FC Torpedo Kutaisi,Erovnuli Liga,Georgia,1748335500,10:45,Not started,,17,api
+13554091,FC Gagra,FC Telavi,Erovnuli Liga,Georgia,1748347200,14:00,Not started,,17,api
+13554089,Gareji,FC Iberia 1999,Erovnuli Liga,Georgia,1748334600,10:30,Not started,,17,api
+13494660,Grobiņas SC,SK Super Nova,Virsliga,Latvia,1748278800,19:00,Not started,,15,api
+13709764,Lion City Sailors,Brunei DPMM FC,"Singapore Cup, Playoffs",Singapore,1748349000,14:30,Not started,,28,api
+13709750,Tampines Rovers,BG Pathum United,"Singapore Cup, Playoffs",Singapore,1748339100,11:45,Not started,,28,api
+13292653,IK Brage,Utsiktens BK,Superettan,Sweden,1748280600,19:30,Not started,,10,api
+13292654,IK Oddevold,Västerås SK,Superettan,Sweden,1748271600,17:00,Not started,,10,api
+13292655,Landskrona BoIS,Falkenbergs FF,Superettan,Sweden,1748280600,19:30,Not started,,10,api
+13292658,Umeå,Örgryte IS,Superettan,Sweden,1748287800,21:30,Not started,,10,api
+13292656,Sandvikens IF,GIF Sundsvall,Superettan,Sweden,1748356200,16:30,Not started,,10,api
+13292657,Trelleborgs FF,Helsingborgs IF,Superettan,Sweden,1748362500,18:15,Not started,,10,api
