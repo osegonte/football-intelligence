@@ -51,3 +51,13 @@ setup(
     keywords="football, soccer, scraping, analytics, dashboard",
     python_requires=">=3.8",
 )
+
+# Update setup.py install_requires list
+install_requires=[
+    # Existing dependencies...
+    
+    # Database dependencies
+    "psycopg2-binary>=2.9.5",
+    "sqlalchemy>=2.0.0",
+    "alembic>=1.10.0",
+]
