@@ -6,8 +6,6 @@ from datetime import datetime, timedelta
 import os
 import sys
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 from visualizations import (
     create_matches_by_league_chart,
     create_matches_by_country_chart,
@@ -33,7 +31,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Apply Apple-inspired custom CSS
+# Apply refined Apple-inspired custom CSS with SF Pro system fonts
 st.markdown("""
 <style>
     /* Global typography using SF Pro or system font */
@@ -41,35 +39,40 @@ st.markdown("""
         font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'SF Pro Text', 'Helvetica Neue', sans-serif;
     }
     
-    /* Typography scale */
+    /* Typography scale following Apple's guidelines */
     h1 {
         font-size: 34px !important;
         font-weight: 800 !important;
         letter-spacing: -0.03em;
         color: #1d1d1f;
+        margin-bottom: 8px !important;
     }
     h2 {
         font-size: 28px !important;
         font-weight: 700 !important;
         letter-spacing: -0.02em;
         color: #1d1d1f;
-        margin-top: 1.5rem !important;
+        margin-top: 24px !important;
+        margin-bottom: 16px !important;
     }
     h3 {
         font-size: 20px !important;
         font-weight: 600 !important;
         color: #1d1d1f;
+        margin-top: 16px !important;
+        margin-bottom: 8px !important;
     }
     p, div, li {
         font-size: 17px !important;
         color: #424245;
+        line-height: 1.4;
     }
     small {
         font-size: 13px !important;
         color: #6e6e73;
     }
     
-    /* Dark mode support */
+    /* Dark mode support with subtle adjustments */
     @media (prefers-color-scheme: dark) {
         h1, h2, h3 {
             color: #f5f5f7;
@@ -80,6 +83,27 @@ st.markdown("""
         small {
             color: #86868b;
         }
+        .card {
+            background-color: #1c1c1e !important;
+            border-color: rgba(255,255,255,0.08) !important;
+        }
+        .metric-container {
+            background-color: #1c1c1e !important;
+            border-color: rgba(255,255,255,0.08) !important;
+        }
+        .match-card {
+            background-color: #1c1c1e !important;
+            border-color: rgba(255,255,255,0.08) !important;
+        }
+        .league-header {
+            background-color: #2c2c2e !important;
+        }
+        .filter-pill {
+            background-color: #2c2c2e !important;
+        }
+        .filter-pill:hover {
+            background-color: #3a3a3c !important;
+        }
     }
     
     /* Layout & Spacing - 8-point grid */
@@ -89,27 +113,19 @@ st.markdown("""
         margin: 0 auto;
     }
     
-    /* Card styling */
+    /* Card styling with refined shadows and transitions */
     .card {
         background-color: white;
         border-radius: 12px;
         padding: 16px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         margin-bottom: 16px;
-        border: 1px solid rgba(0,0,0,0.1);
+        border: 1px solid rgba(0,0,0,0.05);
         transition: all 0.2s ease;
     }
     .card:hover {
         box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         transform: translateY(-2px);
-    }
-    
-    /* Dark mode for cards */
-    @media (prefers-color-scheme: dark) {
-        .card {
-            background-color: #1c1c1e;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
     }
     
     /* Tabs styling */
@@ -143,44 +159,49 @@ st.markdown("""
         color: #007aff;
     }
     
-    /* Metric cards */
+    /* Metric cards with cleaner borders and transitions */
     .metric-container {
         background-color: white;
         border-radius: 12px;
         padding: 16px;
         text-align: center;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        border: 1px solid rgba(0,0,0,0.08);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.06);
         height: 100%;
         transition: all 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
     .metric-container:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.06);
     }
     .metric-container h3 {
         margin-bottom: 4px;
-        font-size: 16px !important;
+        font-size: 15px !important;
         color: #6e6e73;
+        font-weight: 500 !important;
     }
     .metric-container h2 {
         margin-top: 0 !important;
         font-size: 32px !important;
         color: #007aff;
+        margin-bottom: 0 !important;
     }
     
-    /* Match cards */
+    /* Match cards with refined styling */
     .match-card {
         background-color: white;
         border-radius: 12px;
         padding: 16px;
         margin-bottom: 8px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        border: 1px solid rgba(0,0,0,0.08);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.06);
         transition: all 0.2s ease;
     }
     .match-card:hover {
-        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
         transform: translateY(-1px);
     }
     .match-card strong {
@@ -198,15 +219,18 @@ st.markdown("""
         color: #1d1d1f;
     }
     
-    /* Filter controls */
+    /* Filter controls with vibrancy effect */
     .sidebar .stDateInput, .sidebar .stMultiselect, .sidebar .stSelectbox {
-        background-color: #f5f5f7;
+        background-color: rgba(245,245,247,0.8);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
         border-radius: 8px;
         padding: 8px;
         margin-bottom: 16px;
+        border: 1px solid rgba(0,0,0,0.06);
     }
     
-    /* Button styling */
+    /* Button styling with Apple blue */
     .stButton > button {
         border-radius: 8px;
         background-color: #007aff;
@@ -236,15 +260,15 @@ st.markdown("""
         height: 8px;
     }
     ::-webkit-scrollbar-track {
-        background: rgba(0,0,0,0.05);
+        background: rgba(0,0,0,0.03);
         border-radius: 8px;
     }
     ::-webkit-scrollbar-thumb {
-        background: rgba(0,0,0,0.2);
+        background: rgba(0,0,0,0.15);
         border-radius: 8px;
     }
     ::-webkit-scrollbar-thumb:hover {
-        background: rgba(0,0,0,0.3);
+        background: rgba(0,0,0,0.25);
     }
     
     /* Container widths */
@@ -253,10 +277,13 @@ st.markdown("""
         max-width: 100%;
     }
     
-    /* Sidebar width */
+    /* Sidebar width - fixed at 240pt as recommended */
     [data-testid="stSidebar"] {
         min-width: 240px !important;
         max-width: 240px !important;
+        background-color: rgba(245,245,247,0.7);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
     }
     
     /* Sidebar padding */
@@ -286,17 +313,22 @@ st.markdown("""
     .filter-pill.active:hover {
         background-color: #0063cc;
     }
+    
+    /* Section spacing */
+    .section {
+        margin-bottom: 32px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# Title and description - using SF Pro styling
+# Title and description using SF Pro styling
 st.markdown("""
-# ⚽ Football Intelligence Dashboard
+# ⚽ Football Match Intelligence
 """)
 
 st.markdown("""
 <p style="color: #6e6e73; font-size: 17px !important; margin-top: -8px; margin-bottom: 24px;">
-Analyzing football matches across major leagues with data from SofaScore and FBref
+Advanced football analytics dashboard with match data from major leagues
 </p>
 """, unsafe_allow_html=True)
 
@@ -325,7 +357,7 @@ analyzer = FootballDataAnalyzer(data_file)
 
 # Create sidebar with Apple-inspired styling
 with st.sidebar:
-    st.markdown("## Filters")
+    st.markdown("<h3 style='margin-top: 0; font-size: 17px !important; font-weight: 600;'>Filters</h3>", unsafe_allow_html=True)
     st.markdown("<div style='height: 8px'></div>", unsafe_allow_html=True)
     
     # Date range filter with improved styling
@@ -409,21 +441,22 @@ with st.sidebar:
                                 (filtered_df['away_team'] == selected_team)]
     
     # Add a divider
-    st.markdown("<hr style='margin: 24px 0; opacity: 0.3;'>", unsafe_allow_html=True)
+    st.markdown("<hr style='margin: 24px 0; opacity: 0.2;'>", unsafe_allow_html=True)
     
     # Add about section
-    st.markdown("### About")
+    st.markdown("<h3 style='font-size: 15px !important; font-weight: 600;'>About</h3>", unsafe_allow_html=True)
     st.markdown("""
-    <small style='color: #6e6e73;'>
+    <small style='color: #6e6e73; line-height: 1.4;'>
     Football Intelligence Dashboard provides analytics and insights for football matches 
     across major leagues. Data is collected from multiple sources including SofaScore and FBref.
     </small>
     """, unsafe_allow_html=True)
 
-# Create Apple-inspired tabs
+# Create Apple-inspired segmented control for tabs
 tab1, tab2, tab3, tab4 = st.tabs(["📊 Overview", "📆 Schedule", "📈 Analytics", "🔍 Teams"])
 
 with tab1:
+    st.markdown("<div class='section'>", unsafe_allow_html=True)
     st.markdown("## Match Overview")
     
     # Match count metrics in Apple-inspired card layout
@@ -461,11 +494,10 @@ with tab1:
             <h2>{days_count}</h2>
         </div>
         """, unsafe_allow_html=True)
-    
-    # Add some space
-    st.markdown("<div style='height: 24px'></div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
     
     # Charts section
+    st.markdown("<div class='section'>", unsafe_allow_html=True)
     col1, col2 = st.columns(2)
     
     with col1:
@@ -481,18 +513,23 @@ with tab1:
         # Use the enhanced chart function
         fig = create_matches_by_country_chart(filtered_df)
         st.plotly_chart(fig, use_container_width=True)
+    st.markdown("</div>", unsafe_allow_html=True)
     
     # Add calendar heatmap
+    st.markdown("<div class='section'>", unsafe_allow_html=True)
     st.markdown("### Match Calendar")
     fig = create_match_calendar_heatmap(filtered_df)
     if fig:
         st.plotly_chart(fig, use_container_width=True)
+    st.markdown("</div>", unsafe_allow_html=True)
     
     # Add match timeline
+    st.markdown("<div class='section'>", unsafe_allow_html=True)
     st.markdown("### Match Timeline by Hour")
     fig = create_match_timeline(filtered_df)
     if fig:
         st.plotly_chart(fig, use_container_width=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
 with tab2:
     st.markdown("## Match Schedule")
@@ -551,12 +588,11 @@ with tab3:
     st.markdown("## Advanced Analytics")
     
     # Team appearances chart
+    st.markdown("<div class='section'>", unsafe_allow_html=True)
     st.markdown("### Team Appearances")
     fig = create_team_appearance_chart(filtered_df)
     st.plotly_chart(fig, use_container_width=True)
-    
-    # Add some space
-    st.markdown("<div style='height: 16px'></div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
     
     col1, col2 = st.columns(2)
     
@@ -636,7 +672,7 @@ with tab4:
                         </div>
                     </div>
                     <div style="text-align: right;">
-                        <div style="font-weight: 600;">{match['date'].strftime('%Y-%m-%d')}</div>
+                        <div style="font-weight: 600;">{match['date'].strftime('%a, %b %d')}</div>
                         <div style="color: #86868b; font-size: 13px !important; margin-top: 4px;">
                             {match['start_time']}
                         </div>
@@ -656,6 +692,6 @@ with tab4:
 st.markdown("---")
 st.markdown(f"""
 <footer>
-    ⚽ Football Intelligence Dashboard | Data source: SofaScore & FBref | Last updated: {datetime.now().strftime("%Y-%m-%d %H:%M")}
+    ⚽ Football Intelligence Dashboard | Data source: SofaScore & FBref | Last updated: {datetime.now().strftime("%b %d, %Y")}
 </footer>
 """, unsafe_allow_html=True)
