@@ -6,7 +6,7 @@ import numpy as np
 
 def create_matches_by_league_chart(df, top_n=10):
     """
-    Create an enhanced bar chart of matches by league with improved styling
+    Create an Apple-style bar chart of matches by league
     
     Args:
         df: DataFrame with match data
@@ -23,15 +23,15 @@ def create_matches_by_league_chart(df, top_n=10):
     top_n = min(top_n, len(league_counts))
     top_leagues = league_counts.head(top_n)
     
-    # Create bar chart with enhanced styling
+    # Create bar chart with Apple-style colors and design
     fig = px.bar(
         top_leagues,
         x='league',
         y='count',
-        title=f"Top {top_n} Leagues by Match Count",
-        labels={'league': 'League', 'count': 'Number of Matches'},
+        title=None,
+        labels={'league': '', 'count': 'Number of Matches'},
         color='count',
-        color_continuous_scale=px.colors.sequential.Blues,
+        color_continuous_scale=['#76d0ff', '#0071e3'],
         template="plotly_white"
     )
     
@@ -39,26 +39,35 @@ def create_matches_by_league_chart(df, top_n=10):
     fig.update_traces(
         texttemplate='%{y}',
         textposition='outside',
-        hovertemplate='<b>%{x}</b><br>Matches: %{y}<extra></extra>'
+        hovertemplate='<b>%{x}</b><br>Matches: %{y}<extra></extra>',
+        marker_line_width=0
     )
     
-    # Update layout
+    # Update layout with clean Apple-style design
     fig.update_layout(
         xaxis_tickangle=-45,
         xaxis_title=None,
-        yaxis_title="Number of Matches",
+        yaxis_title=None,
         coloraxis_showscale=False,
-        margin=dict(t=50, b=100, l=70, r=40),
-        title_x=0.5,
-        title_font=dict(size=18),
-        hoverlabel=dict(bgcolor="white", font_size=14)
+        margin=dict(t=0, b=80, l=20, r=20),
+        hoverlabel=dict(bgcolor="white", font_size=14),
+        font=dict(family="-apple-system, BlinkMacSystemFont, 'SF Pro', 'SF Pro Text', 'Helvetica Neue', sans-serif"),
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        xaxis=dict(
+            tickfont=dict(size=12),
+            gridcolor='rgba(0,0,0,0.05)'
+        ),
+        yaxis=dict(
+            gridcolor='rgba(0,0,0,0.05)'
+        )
     )
     
     return fig
 
 def create_matches_by_country_chart(df, top_n=10):
     """
-    Create a bar chart of matches by country
+    Create an Apple-style bar chart of matches by country
     
     Args:
         df: DataFrame with match data
@@ -75,15 +84,15 @@ def create_matches_by_country_chart(df, top_n=10):
     top_n = min(top_n, len(country_counts))
     top_countries = country_counts.head(top_n)
     
-    # Create bar chart with enhanced styling
+    # Create bar chart with Apple-style colors and design
     fig = px.bar(
         top_countries,
         x='country',
         y='count',
-        title=f"Top {top_n} Countries by Match Count",
-        labels={'country': 'Country', 'count': 'Number of Matches'},
+        title=None,
+        labels={'country': '', 'count': 'Number of Matches'},
         color='count',
-        color_continuous_scale=px.colors.sequential.Viridis,
+        color_continuous_scale=['#76d0ff', '#0071e3'],
         template="plotly_white"
     )
     
@@ -91,26 +100,35 @@ def create_matches_by_country_chart(df, top_n=10):
     fig.update_traces(
         texttemplate='%{y}',
         textposition='outside',
-        hovertemplate='<b>%{x}</b><br>Matches: %{y}<extra></extra>'
+        hovertemplate='<b>%{x}</b><br>Matches: %{y}<extra></extra>',
+        marker_line_width=0
     )
     
-    # Update layout
+    # Update layout with clean Apple-style design
     fig.update_layout(
         xaxis_tickangle=-45,
         xaxis_title=None,
-        yaxis_title="Number of Matches",
+        yaxis_title=None,
         coloraxis_showscale=False,
-        margin=dict(t=50, b=100, l=70, r=40),
-        title_x=0.5,
-        title_font=dict(size=18),
-        hoverlabel=dict(bgcolor="white", font_size=14)
+        margin=dict(t=0, b=80, l=20, r=20),
+        hoverlabel=dict(bgcolor="white", font_size=14),
+        font=dict(family="-apple-system, BlinkMacSystemFont, 'SF Pro', 'SF Pro Text', 'Helvetica Neue', sans-serif"),
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        xaxis=dict(
+            tickfont=dict(size=12),
+            gridcolor='rgba(0,0,0,0.05)'
+        ),
+        yaxis=dict(
+            gridcolor='rgba(0,0,0,0.05)'
+        )
     )
     
     return fig
 
 def create_match_calendar_heatmap(df):
     """
-    Create a calendar heatmap of matches by date and day of week
+    Create an Apple-style calendar heatmap of matches by date and day of week
     
     Args:
         df: DataFrame with match data
@@ -145,33 +163,52 @@ def create_match_calendar_heatmap(df):
     days_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     pivot = pivot.reindex(columns=[day for day in days_order if day in pivot.columns])
     
-    # Create heatmap
+    # Create heatmap with Apple-style colors
     fig = px.imshow(
         pivot,
-        title="Match Calendar Heatmap",
-        labels=dict(x="Day of Week", y="Week", color="Match Count"),
-        color_continuous_scale="Viridis",
+        title=None,
+        labels=dict(x="", y="", color=""),
+        color_continuous_scale=['#f5f5f7', '#0071e3'],
         template="plotly_white",
         aspect="auto",
         text_auto=True
     )
     
-    # Update layout
+    # Update layout with clean Apple-style design
     fig.update_layout(
-        title_x=0.5,
-        title_font=dict(size=18),
-        coloraxis_colorbar=dict(title="Match Count"),
-        xaxis_title=None,
-        yaxis_title="Week of Year",
-        margin=dict(t=50, b=50, l=50, r=50),
-        height=400
+        coloraxis_colorbar=dict(
+            title=None,
+            tickfont=dict(size=12)
+        ),
+        margin=dict(t=0, b=20, l=20, r=20),
+        font=dict(family="-apple-system, BlinkMacSystemFont, 'SF Pro', 'SF Pro Text', 'Helvetica Neue', sans-serif"),
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        height=300
+    )
+    
+    # Update y-axis to show "Week" labels
+    fig.update_yaxes(
+        tickvals=list(pivot.index),
+        ticktext=[f"Week {w}" for w in pivot.index],
+        tickfont=dict(size=12)
+    )
+    
+    # Update text style
+    fig.update_traces(
+        texttemplate="%{z}",
+        textfont=dict(
+            family="-apple-system, BlinkMacSystemFont, 'SF Pro', 'SF Pro Text', 'Helvetica Neue', sans-serif",
+            size=12,
+            color="black"
+        )
     )
     
     return fig
 
 def create_team_appearance_chart(df, top_n=15):
     """
-    Create a horizontal bar chart showing teams with most appearances
+    Create an Apple-style horizontal bar chart showing teams with most appearances
     
     Args:
         df: DataFrame with match data
@@ -193,16 +230,16 @@ def create_team_appearance_chart(df, top_n=15):
     top_n = min(top_n, len(all_teams))
     top_teams = all_teams.head(top_n)
     
-    # Create horizontal bar chart
+    # Create horizontal bar chart with Apple-style colors
     fig = px.bar(
         top_teams,
         y='team',
         x='appearances',
         orientation='h',
-        title=f"Top {top_n} Teams by Match Appearances",
-        labels={'appearances': 'Number of Matches', 'team': 'Team'},
+        title=None,
+        labels={'appearances': 'Number of Matches', 'team': ''},
         color='appearances',
-        color_continuous_scale=px.colors.sequential.Plasma,
+        color_continuous_scale=['#76d0ff', '#0071e3'],
         template="plotly_white"
     )
     
@@ -212,26 +249,35 @@ def create_team_appearance_chart(df, top_n=15):
     # Add data labels
     fig.update_traces(
         texttemplate='%{x}',
-        textposition='auto',
-        hovertemplate='<b>%{y}</b><br>Matches: %{x}<extra></extra>'
+        textposition='outside',
+        hovertemplate='<b>%{y}</b><br>Matches: %{x}<extra></extra>',
+        marker_line_width=0
     )
     
-    # Update layout
+    # Update layout with clean Apple-style design
     fig.update_layout(
-        xaxis_title="Number of Matches",
+        xaxis_title=None,
         yaxis_title=None,
         coloraxis_showscale=False,
-        margin=dict(t=50, b=50, l=150, r=50),
-        title_x=0.5,
-        title_font=dict(size=18),
-        hoverlabel=dict(bgcolor="white", font_size=14)
+        margin=dict(t=0, b=20, l=120, r=80),
+        hoverlabel=dict(bgcolor="white", font_size=14),
+        font=dict(family="-apple-system, BlinkMacSystemFont, 'SF Pro', 'SF Pro Text', 'Helvetica Neue', sans-serif"),
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        xaxis=dict(
+            tickfont=dict(size=12),
+            gridcolor='rgba(0,0,0,0.05)'
+        ),
+        yaxis=dict(
+            tickfont=dict(size=12)
+        )
     )
     
     return fig
 
 def create_matches_by_day_chart(df):
     """
-    Create a bar chart showing match distribution by day of week
+    Create an Apple-style bar chart showing match distribution by day of week
     
     Args:
         df: DataFrame with match data
@@ -256,15 +302,15 @@ def create_matches_by_day_chart(df):
     day_counts = df['day_of_week'].value_counts().reindex(day_order).reset_index()
     day_counts.columns = ['day_of_week', 'count']
     
-    # Create bar chart
+    # Create bar chart with Apple-style colors
     fig = px.bar(
         day_counts,
         x='day_of_week',
         y='count',
-        title="Matches by Day of Week",
-        labels={'day_of_week': 'Day of Week', 'count': 'Number of Matches'},
+        title=None,
+        labels={'day_of_week': '', 'count': 'Number of Matches'},
         color='count',
-        color_continuous_scale=px.colors.sequential.Greens,
+        color_continuous_scale=['#76d0ff', '#0071e3'],
         template="plotly_white"
     )
     
@@ -272,25 +318,34 @@ def create_matches_by_day_chart(df):
     fig.update_traces(
         texttemplate='%{y}',
         textposition='outside',
-        hovertemplate='<b>%{x}</b><br>Matches: %{y}<extra></extra>'
+        hovertemplate='<b>%{x}</b><br>Matches: %{y}<extra></extra>',
+        marker_line_width=0
     )
     
-    # Update layout
+    # Update layout with clean Apple-style design
     fig.update_layout(
         xaxis_title=None,
-        yaxis_title="Number of Matches",
+        yaxis_title=None,
         coloraxis_showscale=False,
-        margin=dict(t=50, b=50, l=70, r=40),
-        title_x=0.5,
-        title_font=dict(size=18),
-        hoverlabel=dict(bgcolor="white", font_size=14)
+        margin=dict(t=0, b=20, l=20, r=20),
+        hoverlabel=dict(bgcolor="white", font_size=14),
+        font=dict(family="-apple-system, BlinkMacSystemFont, 'SF Pro', 'SF Pro Text', 'Helvetica Neue', sans-serif"),
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        xaxis=dict(
+            tickfont=dict(size=12),
+            gridcolor='rgba(0,0,0,0.05)'
+        ),
+        yaxis=dict(
+            gridcolor='rgba(0,0,0,0.05)'
+        )
     )
     
     return fig
 
 def create_league_day_heatmap(df, top_n=15):
     """
-    Create a heatmap showing league distribution by day of week
+    Create an Apple-style heatmap showing league distribution by day of week
     
     Args:
         df: DataFrame with match data
@@ -330,33 +385,45 @@ def create_league_day_heatmap(df, top_n=15):
     day_columns = [day for day in day_order if day in pivot.columns]
     pivot = pivot[day_columns]
     
-    # Create heatmap
+    # Create heatmap with Apple-style colors
     fig = px.imshow(
         pivot,
-        title=f"Match Distribution by League and Day of Week (Top {top_n} Leagues)",
-        labels=dict(x="Day of Week", y="League", color="Match Count"),
-        color_continuous_scale="Viridis",
+        title=None,
+        labels=dict(x="", y="", color="Matches"),
+        color_continuous_scale=['#f5f5f7', '#0071e3'],
         template="plotly_white",
         aspect="auto",
         text_auto=True
     )
     
-    # Update layout
+    # Update layout with clean Apple-style design
     fig.update_layout(
-        title_x=0.5,
-        title_font=dict(size=18),
-        xaxis_title=None,
-        yaxis_title=None,
-        margin=dict(t=50, b=50, l=150, r=50),
-        height=600,
-        coloraxis_colorbar=dict(title="Match Count")
+        coloraxis_colorbar=dict(
+            title=None,
+            tickfont=dict(size=12)
+        ),
+        margin=dict(t=0, b=50, l=150, r=50),
+        font=dict(family="-apple-system, BlinkMacSystemFont, 'SF Pro', 'SF Pro Text', 'Helvetica Neue', sans-serif"),
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        height=500
+    )
+    
+    # Update text style
+    fig.update_traces(
+        texttemplate="%{z}",
+        textfont=dict(
+            family="-apple-system, BlinkMacSystemFont, 'SF Pro', 'SF Pro Text', 'Helvetica Neue', sans-serif",
+            size=12,
+            color="black"
+        )
     )
     
     return fig
 
 def create_team_comparison_chart(df, team1, team2):
     """
-    Create a comparison chart for two teams
+    Create an Apple-style comparison chart for two teams
     
     Args:
         df: DataFrame with match data
@@ -384,14 +451,15 @@ def create_team_comparison_chart(df, team1, team2):
     
     df_comp = pd.DataFrame(data)
     
+    # Create grouped bar chart with Apple-style colors
     fig = px.bar(
         df_comp,
         x='Team',
         y='Matches',
         color='Type',
-        title=f"Match Comparison: {team1} vs {team2}",
+        title=None,
         barmode='group',
-        color_discrete_map={'Home': '#1f77b4', 'Away': '#ff7f0e'},
+        color_discrete_map={'Home': '#0071e3', 'Away': '#76d0ff'},
         template="plotly_white",
         text_auto=True
     )
@@ -403,33 +471,60 @@ def create_team_comparison_chart(df, team1, team2):
             y=team1_total + 1,
             text=f"Total: {team1_total}",
             showarrow=False,
-            font=dict(size=14)
+            font=dict(
+                family="-apple-system, BlinkMacSystemFont, 'SF Pro', 'SF Pro Text', 'Helvetica Neue', sans-serif",
+                size=14
+            )
         ),
         dict(
             x=team2,
             y=team2_total + 1,
             text=f"Total: {team2_total}",
             showarrow=False,
-            font=dict(size=14)
+            font=dict(
+                family="-apple-system, BlinkMacSystemFont, 'SF Pro', 'SF Pro Text', 'Helvetica Neue', sans-serif",
+                size=14
+            )
         )
     ]
     
-    # Update layout
+    # Update layout with clean Apple-style design
     fig.update_layout(
         xaxis_title=None,
-        yaxis_title="Number of Matches",
-        legend_title="Match Type",
-        margin=dict(t=50, b=50, l=50, r=50),
-        title_x=0.5,
-        title_font=dict(size=18),
-        annotations=annotations
+        yaxis_title=None,
+        legend_title=None,
+        margin=dict(t=40, b=20, l=20, r=20),
+        font=dict(family="-apple-system, BlinkMacSystemFont, 'SF Pro', 'SF Pro Text', 'Helvetica Neue', sans-serif"),
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        xaxis=dict(
+            tickfont=dict(size=14),
+            gridcolor='rgba(0,0,0,0.05)'
+        ),
+        yaxis=dict(
+            gridcolor='rgba(0,0,0,0.05)'
+        ),
+        annotations=annotations,
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1
+        )
+    )
+    
+    # Update bar styles
+    fig.update_traces(
+        marker_line_width=0,
+        textposition='outside'
     )
     
     return fig
 
 def create_match_timeline(df, days_range=7):
     """
-    Create a timeline chart showing matches distribution by hour of day
+    Create an Apple-style timeline chart showing matches distribution by hour of day
     
     Args:
         df: DataFrame with match data
@@ -463,16 +558,8 @@ def create_match_timeline(df, days_range=7):
     all_hours = pd.DataFrame({'hour': range(0, 24)})
     hour_counts = all_hours.merge(hour_counts, on='hour', how='left').fillna(0)
     
-    # Create line chart
-    fig = px.line(
-        hour_counts,
-        x='hour',
-        y='count',
-        title=f"Match Distribution by Time of Day (Next {days_range} Days)",
-        labels={'hour': 'Hour of Day (24h)', 'count': 'Number of Matches'},
-        markers=True,
-        template="plotly_white"
-    )
+    # Create line chart with Apple-style colors
+    fig = go.Figure()
     
     # Add area under the line
     fig.add_trace(
@@ -480,26 +567,43 @@ def create_match_timeline(df, days_range=7):
             x=hour_counts['hour'],
             y=hour_counts['count'],
             fill='tozeroy',
-            fillcolor='rgba(0, 100, 80, 0.2)',
-            line=dict(color='rgba(0, 100, 80, 0.8)'),
-            showlegend=False
+            fillcolor='rgba(0, 113, 227, 0.2)',
+            line=dict(color='#0071e3', width=3),
+            mode='lines+markers',
+            name='',
+            marker=dict(
+                size=8,
+                color='#0071e3',
+                line=dict(width=1, color='white')
+            ),
+            hovertemplate='<b>%{x}:00</b><br>Matches: %{y}<extra></extra>'
         )
     )
     
-    # Update layout
+    # Update layout with clean Apple-style design
     fig.update_layout(
+        title=None,
         xaxis=dict(
+            title=None,
             tickmode='linear',
             tick0=0,
             dtick=2,
             ticktext=[f"{h:02d}:00" for h in range(0, 24, 2)],
-            tickvals=list(range(0, 24, 2))
+            tickvals=list(range(0, 24, 2)),
+            tickfont=dict(size=12),
+            gridcolor='rgba(0,0,0,0.05)'
         ),
-        yaxis_title="Number of Matches",
-        margin=dict(t=50, b=50, l=70, r=40),
-        title_x=0.5,
-        title_font=dict(size=18),
-        hoverlabel=dict(bgcolor="white", font_size=14)
+        yaxis=dict(
+            title=None,
+            tickfont=dict(size=12),
+            gridcolor='rgba(0,0,0,0.05)'
+        ),
+        margin=dict(t=0, b=20, l=20, r=20),
+        font=dict(family="-apple-system, BlinkMacSystemFont, 'SF Pro', 'SF Pro Text', 'Helvetica Neue', sans-serif"),
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        hoverlabel=dict(bgcolor="white", font_size=14),
+        showlegend=False
     )
     
     return fig
