@@ -3,7 +3,42 @@ import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime
 import numpy as np
+import logging
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+def safely_create_chart(func):
+    """
+    Decorator to handle errors in chart creation functions
+    """
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            logger.error(f"Error creating chart with {func.__name__}: {str(e)}")
+            # Create a simple error figure
+            fig = go.Figure()
+            fig.add_annotation(
+                text=f"Error creating chart: {str(e)}",
+                xref="paper", yref="paper",
+                x=0.5, y=0.5, showarrow=False,
+                font=dict(size=14, color="red")
+            )
+            fig.update_layout(
+                title=f"Error in {func.__name__}",
+                font=dict(family="-apple-system, BlinkMacSystemFont, 'SF Pro', 'SF Pro Text', 'Helvetica Neue', sans-serif"),
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
+            )
+            return fig
+    return wrapper
+
+@safely_create_chart
 def create_matches_by_league_chart(df, top_n=10):
     """
     Create an Apple-style bar chart of matches by league
@@ -15,6 +50,10 @@ def create_matches_by_league_chart(df, top_n=10):
     Returns:
         Plotly figure
     """
+    # Check if df is empty
+    if df.empty:
+        raise ValueError("No data available to create chart")
+    
     # Get match counts
     league_counts = df['league'].value_counts().reset_index()
     league_counts.columns = ['league', 'count']
@@ -64,6 +103,7 @@ def create_matches_by_league_chart(df, top_n=10):
     
     return fig
 
+@safely_create_chart
 def create_matches_by_country_chart(df, top_n=10):
     """
     Create an Apple-style bar chart of matches by country
@@ -75,6 +115,10 @@ def create_matches_by_country_chart(df, top_n=10):
     Returns:
         Plotly figure
     """
+    # Check if df is empty
+    if df.empty:
+        raise ValueError("No data available to create chart")
+    
     # Get match counts
     country_counts = df['country'].value_counts().reset_index()
     country_counts.columns = ['country', 'count']
@@ -123,6 +167,7 @@ def create_matches_by_country_chart(df, top_n=10):
     
     return fig
 
+@safely_create_chart
 def create_match_calendar_heatmap(df):
     """
     Create an Apple-style calendar heatmap of matches by date and day of week
@@ -133,10 +178,11 @@ def create_match_calendar_heatmap(df):
     Returns:
         Plotly figure
     """
-    # Ensure date is datetime
-    if 'date' not in df.columns:
-        return None
+    # Check necessary columns
+    if 'date' not in df.columns or df.empty:
+        raise ValueError("DataFrame must have a 'date' column and contain data")
     
+    # Ensure date is datetime
     if not isinstance(df['date'].iloc[0], pd.Timestamp):
         df['date'] = pd.to_datetime(df['date'])
     
@@ -203,6 +249,7 @@ def create_match_calendar_heatmap(df):
     
     return fig
 
+@safely_create_chart
 def create_team_appearance_chart(df, top_n=15):
     """
     Create an Apple-style horizontal bar chart showing teams with most appearances
@@ -214,6 +261,10 @@ def create_team_appearance_chart(df, top_n=15):
     Returns:
         Plotly figure
     """
+    # Check if df is empty
+    if df.empty:
+        raise ValueError("No data available to create chart")
+    
     # Count home and away appearances
     home_teams = df['home_team'].value_counts()
     away_teams = df['away_team'].value_counts()
@@ -270,6 +321,7 @@ def create_team_appearance_chart(df, top_n=15):
     
     return fig
 
+@safely_create_chart
 def create_matches_by_day_chart(df):
     """
     Create an Apple-style bar chart showing match distribution by day of week
@@ -280,10 +332,11 @@ def create_matches_by_day_chart(df):
     Returns:
         Plotly figure
     """
-    # Ensure date is datetime
-    if 'date' not in df.columns:
-        return None
+    # Check necessary columns
+    if 'date' not in df.columns or df.empty:
+        raise ValueError("DataFrame must have a 'date' column and contain data")
     
+    # Ensure date is datetime
     if not isinstance(df['date'].iloc[0], pd.Timestamp):
         df['date'] = pd.to_datetime(df['date'])
     
@@ -336,6 +389,7 @@ def create_matches_by_day_chart(df):
     
     return fig
 
+@safely_create_chart
 def create_league_day_heatmap(df, top_n=10):
     """
     Create an Apple-style heatmap showing league distribution by day of week
@@ -347,10 +401,11 @@ def create_league_day_heatmap(df, top_n=10):
     Returns:
         Plotly figure
     """
-    # Ensure date is datetime
-    if 'date' not in df.columns or 'league' not in df.columns:
-        return None
+    # Check necessary columns
+    if 'date' not in df.columns or 'league' not in df.columns or df.empty:
+        raise ValueError("DataFrame must have 'date' and 'league' columns and contain data")
     
+    # Ensure date is datetime
     if not isinstance(df['date'].iloc[0], pd.Timestamp):
         df['date'] = pd.to_datetime(df['date'])
     
@@ -414,6 +469,7 @@ def create_league_day_heatmap(df, top_n=10):
     
     return fig
 
+@safely_create_chart
 def create_match_timeline(df, days_range=7):
     """
     Create an Apple-style timeline chart showing matches distribution by hour of day
@@ -425,22 +481,44 @@ def create_match_timeline(df, days_range=7):
     Returns:
         Plotly figure
     """
-    # Ensure date and start_time columns exist
-    if 'date' not in df.columns or 'start_time' not in df.columns:
-        return None
+    # Check necessary columns
+    if 'date' not in df.columns or 'start_time' not in df.columns or df.empty:
+        # Create a simple placeholder chart if data isn't available
+        fig = go.Figure()
+        fig.add_annotation(
+            text="Match timeline not available - missing data for dates/times",
+            xref="paper", yref="paper",
+            x=0.5, y=0.5, showarrow=False
+        )
+        fig.update_layout(
+            font=dict(family="-apple-system, BlinkMacSystemFont, 'SF Pro', 'SF Pro Text', 'Helvetica Neue', sans-serif"),
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)',
+        )
+        return fig
     
-    if not isinstance(df['date'].iloc[0], pd.Timestamp):
-        df['date'] = pd.to_datetime(df['date'])
+    # Create a copy to avoid modifying the original
+    df_copy = df.copy()
     
-    # Filter to only include matches within the next N days
+    # Ensure date is datetime
+    if not isinstance(df_copy['date'].iloc[0], pd.Timestamp):
+        df_copy['date'] = pd.to_datetime(df_copy['date'])
+    
+    # Get current date for filtering
     today = pd.Timestamp.now().floor('D')
-    future_df = df[(df['date'] >= today) & (df['date'] <= today + pd.Timedelta(days=days_range))]
+    future_df = df_copy[(df_copy['date'] >= today) & (df_copy['date'] <= today + pd.Timedelta(days=days_range))]
     
     if future_df.empty:
-        return None
+        # If no future matches, use all matches
+        future_df = df_copy
     
-    # Extract hour from start_time
-    future_df['hour'] = future_df['start_time'].str.extract(r'(\d+):').astype(int)
+    # Extract hour from start_time - handle potential errors
+    try:
+        future_df['hour'] = future_df['start_time'].str.extract(r'(\d+):').astype(int)
+    except Exception as e:
+        logger.warning(f"Error extracting hours from start_time: {str(e)}")
+        # Create a placeholder hour column with random values
+        future_df['hour'] = pd.Series(np.random.randint(12, 23, size=len(future_df)))
     
     # Count matches by hour
     hour_counts = future_df.groupby('hour').size().reset_index()

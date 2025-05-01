@@ -1,26 +1,74 @@
 # dashboard/data_loader.py
 """
-Simplified data loader module for the Football Intelligence dashboard.
-Uses CSV files instead of a database.
+Data loader module for the Football Intelligence dashboard.
+Supports both CSV files and PostgreSQL database as data sources.
 """
 import os
 import pandas as pd
 from datetime import datetime, timedelta
+import logging
 import streamlit as st
+import sys
+
+# Add parent directory to path for imports
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(parent_dir)
+
+# Import the database connector
+from data_processing.db_connector import DatabaseConnector
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
+logger = logging.getLogger(__name__)
 
 class FootballDataLoader:
     """
-    Data loader for football match data using CSV storage.
+    Data loader for football match data using either CSV storage or PostgreSQL database.
     """
     
-    def __init__(self):
-        """Initialize the data loader."""
+    def __init__(self, use_db=False, db_config=None):
+        """
+        Initialize the data loader.
+        
+        Args:
+            use_db: Whether to use the database instead of CSV files
+            db_config: Dictionary with database connection parameters
+        """
         # Cached data
         self._fixtures = None
         self._leagues = None
         self._countries = None
         self._teams = None
+        
+        # Database settings
+        self.use_db = use_db
+        self.db = None
         self.data_source = "CSV"
+        
+        if use_db:
+            try:
+                # Initialize database connection
+                if db_config is None:
+                    db_config = {}
+                
+                self.db = DatabaseConnector(**db_config)
+                
+                if self.db.test_connection():
+                    self.data_source = f"PostgreSQL ({self.db.dbname})"
+                    logger.info(f"Using database source: {self.data_source}")
+                else:
+                    logger.warning("Database connection failed, falling back to CSV")
+                    self.use_db = False
+                    self.db = None
+            except Exception as e:
+                logger.error(f"Error connecting to database: {str(e)}")
+                self.use_db = False
+                self.db = None
     
     def _get_csv_path(self):
         """Get path to the fixtures CSV file"""
@@ -39,206 +87,80 @@ class FootballDataLoader:
         
         return None
     
-    @st.cache_data(ttl=3600)  # Cache for 1 hour
-    def load_fixtures(self, _self=None, force_reload=False):
+    def _load_from_database(self):
         """
-        Load fixtures data from CSV
+        Load fixtures data from the database
         
-        Args:
-            _self: Leading underscore to tell Streamlit not to hash this parameter
-            force_reload: Force reload from source (ignore cache)
-            
         Returns:
             DataFrame with fixtures data
         """
-        # Note: _self parameter is ignored, it's just to avoid hashing issues
-        if self._fixtures is not None and not force_reload:
-            return self._fixtures
+        if not self.db:
+            raise ValueError("Database connection not initialized")
+        
+        try:
+            # Connect to database
+            if not self.db.connect():
+                raise ConnectionError("Failed to connect to database")
             
-        csv_path = self._get_csv_path()
-        if not csv_path:
-            raise FileNotFoundError("No fixture data CSV file found. Please run the scraper first.")
-        
-        df = pd.read_csv(csv_path)
-        
-        # Convert date to datetime if it's a string
-        if 'date' in df.columns and df['date'].dtype == 'object':
+            # Query to get all matches with team and league info
+            query = """
+            SELECT 
+                m.match_id AS id,
+                m.date,
+                home.team_name AS home_team,
+                away.team_name AS away_team,
+                l.league_name AS league,
+                -- Using a common country field for simplicity
+                (SELECT league_name FROM league WHERE league_id = 
+                    (SELECT league_id FROM team WHERE team_id = m.team_id)) AS country,
+                m.gf AS home_score,
+                m.ga AS away_score,
+                m.status
+            FROM 
+                match m
+            JOIN 
+                team home ON m.team_id = home.team_id
+            JOIN 
+                team away ON m.opponent_id = away.team_id
+            JOIN 
+                league l ON home.league_id = l.league_id
+            ORDER BY
+                m.date DESC
+            """
+            
+            # Execute the query
+            results = self.db.execute_query(query)
+            
+            if not results:
+                raise ValueError("No data retrieved from database")
+            
+            # Convert to DataFrame
+            column_names = [
+                'id', 'date', 'home_team', 'away_team', 'league', 
+                'country', 'home_score', 'away_score', 'status'
+            ]
+            
+            df = pd.DataFrame(results, columns=column_names)
+            
+            # Make sure date is datetime
             df['date'] = pd.to_datetime(df['date'])
             
-        self.data_source = f"CSV: {os.path.basename(csv_path)}"
-        self._fixtures = df
-        return df
-    
-    @st.cache_data(ttl=3600)
-    def get_date_range(self, _self=None):
-        """Get the available date range in the data"""
-        # Note: _self parameter is ignored, it's just to avoid hashing issues
-        df = self.load_fixtures()
-        min_date = df['date'].min()
-        max_date = df['date'].max()
-        return min_date, max_date
-    
-    @st.cache_data(ttl=3600)
-    def get_leagues(self, _self=None):
-        """Get unique leagues in the data"""
-        # Note: _self parameter is ignored, it's just to avoid hashing issues
-        df = self.load_fixtures()
-        return sorted(df['league'].unique())
-    
-    @st.cache_data(ttl=3600)
-    def get_countries(self, _self=None):
-        """Get unique countries in the data"""
-        # Note: _self parameter is ignored, it's just to avoid hashing issues
-        df = self.load_fixtures()
-        return sorted(df['country'].unique())
-    
-    @st.cache_data(ttl=3600)
-    def get_teams(self, _self=None):
-        """Get unique teams in the data"""
-        # Note: _self parameter is ignored, it's just to avoid hashing issues
-        df = self.load_fixtures()
-        teams = set()
-        for team in df['home_team'].unique():
-            teams.add(team)
-        for team in df['away_team'].unique():
-            teams.add(team)
-        return sorted(list(teams))
-    
-    def filter_fixtures(self, start_date=None, end_date=None, leagues=None, countries=None, team=None):
-        """
-        Filter fixtures based on criteria
-        
-        Args:
-            start_date: Start date for filtering
-            end_date: End date for filtering
-            leagues: List of leagues to include
-            countries: List of countries to include
-            team: Team to filter by
+            # Add placeholder for start_time if not present
+            if 'start_time' not in df.columns:
+                df['start_time'] = "00:00"
             
-        Returns:
-            DataFrame with filtered fixtures
-        """
-        df = self.load_fixtures()
-        
-        # Filter by date
-        if start_date:
-            df = df[df['date'].dt.date >= start_date]
-        if end_date:
-            df = df[df['date'].dt.date <= end_date]
+            # Close the connection
+            self.db.disconnect()
             
-        # Filter by leagues
-        if leagues and len(leagues) > 0:
-            df = df[df['league'].isin(leagues)]
+            return df
             
-        # Filter by countries
-        if countries and len(countries) > 0:
-            df = df[df['country'].isin(countries)]
+        except Exception as e:
+            logger.error(f"Error loading data from database: {str(e)}")
+            # Try to disconnect in case the connection is still open
+            try:
+                if self.db:
+                    self.db.disconnect()
+            except:
+                pass
             
-        # Filter by team
-        if team and team != "All Teams":
-            df = df[(df['home_team'] == team) | (df['away_team'] == team)]
-            
-        return df
-    
-    def get_matches_by_date(self, filtered_df=None):
-        """
-        Group matches by date
-        
-        Args:
-            filtered_df: Filtered DataFrame (if None, uses all fixtures)
-            
-        Returns:
-            Dictionary with dates as keys and match DataFrames as values
-        """
-        if filtered_df is None:
-            filtered_df = self.load_fixtures()
-            
-        # Ensure date is datetime
-        if not pd.api.types.is_datetime64_dtype(filtered_df['date']):
-            filtered_df['date'] = pd.to_datetime(filtered_df['date'])
-            
-        # Sort by date and time
-        if 'start_time' in filtered_df.columns:
-            filtered_df = filtered_df.sort_values(['date', 'start_time'])
-        else:
-            filtered_df = filtered_df.sort_values('date')
-            
-        # Group by date
-        dates = filtered_df['date'].dt.date.unique()
-        result = {}
-        
-        for date in dates:
-            result[date] = filtered_df[filtered_df['date'].dt.date == date]
-            
-        return result
-    
-    def get_team_appearances(self, top_n=None, filtered_df=None):
-        """
-        Calculate team appearances
-        
-        Args:
-            top_n: Limit to top N teams
-            filtered_df: Filtered DataFrame (if None, uses all fixtures)
-            
-        Returns:
-            DataFrame with team appearance counts
-        """
-        if filtered_df is None:
-            filtered_df = self.load_fixtures()
-            
-        # Count home and away appearances
-        home_teams = filtered_df['home_team'].value_counts()
-        away_teams = filtered_df['away_team'].value_counts()
-        
-        # Combine counts
-        all_teams = home_teams.add(away_teams, fill_value=0).sort_values(ascending=False)
-        all_teams = all_teams.reset_index()
-        all_teams.columns = ['team', 'appearances']
-        
-        # Take top N teams if specified
-        if top_n:
-            all_teams = all_teams.head(top_n)
-            
-        return all_teams
-    
-    def get_matches_for_team(self, team_name, filtered_df=None):
-        """
-        Get matches for a specific team
-        
-        Args:
-            team_name: Name of the team
-            filtered_df: Filtered DataFrame (if None, uses all fixtures)
-            
-        Returns:
-            DataFrame with team's matches
-        """
-        if filtered_df is None:
-            filtered_df = self.load_fixtures()
-            
-        # Filter matches where the team plays
-        team_matches = filtered_df[(filtered_df['home_team'] == team_name) | 
-                                   (filtered_df['away_team'] == team_name)].copy()
-        
-        # Add is_home column
-        team_matches['is_home'] = team_matches['home_team'] == team_name
-        
-        # Add opponent column
-        team_matches['opponent'] = team_matches.apply(
-            lambda row: row['away_team'] if row['home_team'] == team_name else row['home_team'], 
-            axis=1
-        )
-        
-        return team_matches
-        
-    def get_data_source_info(self):
-        """Get information about the data source"""
-        df = self.load_fixtures()
-        
-        return {
-            "source": self.data_source,
-            "total_matches": len(df),
-            "date_range": f"{df['date'].min().date()} to {df['date'].max().date()}",
-            "leagues": df['league'].nunique(),
-            "countries": df['country'].nunique(),
-            "teams": len(self.get_teams())
-        }
+            raise
