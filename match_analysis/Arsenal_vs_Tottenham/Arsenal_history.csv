@@ -1,0 +1,8 @@
+date,competition,round,venue,result,gf,ga,opponent,xg,xga,possession,team,match_id,team_role
+2025-05-25,Premier League,Matchweek 38,Away,,0.0,0.0,Southampton,0.0,0.0,,Arsenal,20250525_Arsenal_Southampton,home
+2025-05-18,Premier League,Matchweek 37,Home,,0.0,0.0,Newcastle Utd,0.0,0.0,,Arsenal,20250518_Arsenal_Newcastle Utd,home
+2025-05-11,Premier League,Matchweek 36,Away,,0.0,0.0,Liverpool,0.0,0.0,,Arsenal,20250511_Arsenal_Liverpool,home
+2025-05-07,Champions Lg,Semi-finals,Away,,0.0,0.0,fr Paris S-G,0.0,0.0,,Arsenal,20250507_Arsenal_fr Paris S-G,home
+2025-05-03,Premier League,Matchweek 35,Home,,0.0,0.0,Bournemouth,0.0,0.0,,Arsenal,20250503_Arsenal_Bournemouth,home
+2025-04-29,Champions Lg,Semi-finals,Home,L,0.0,1.0,fr Paris S-G,1.7,1.2,49.0,Arsenal,20250429_Arsenal_fr Paris S-G,home
+2025-04-23,Premier League,Matchweek 34,Home,D,2.0,2.0,Crystal Palace,1.2,1.7,67.0,Arsenal,20250423_Arsenal_Crystal Palace,home

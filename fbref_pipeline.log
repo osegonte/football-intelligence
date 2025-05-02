@@ -28,3 +28,90 @@
 2025-05-02 11:39:35,379 - __main__ - WARNING - Could not find stats wrapper div at https://fbref.com/en/comps/9/2023-2024/2023-2024-Stats
 2025-05-02 11:39:40,385 - __main__ - WARNING - Could not find URL for Arsenal, skipping
 2025-05-02 11:39:40,385 - __main__ - INFO - Pipeline complete. Processed 0 fixtures
+2025-05-02 11:48:09,292 - __main__ - INFO - Loading upcoming matches from test_matches.csv
+2025-05-02 11:48:09,296 - __main__ - WARNING - No date column found, using current date
+2025-05-02 11:48:09,296 - __main__ - INFO - Loaded 1 upcoming matches
+2025-05-02 11:48:09,296 - __main__ - INFO - Processing fixture 1/1: Arsenal vs Tottenham
+2025-05-02 11:48:09,296 - __main__ - INFO - Looking for Arsenal in league ID 9
+2025-05-02 11:48:09,296 - __main__ - INFO - Fetching league base URL: https://fbref.com/en/comps/9/Premier-League-Stats
+2025-05-02 11:48:09,719 - __main__ - WARNING - Could not find season dropdown on page
+2025-05-02 11:48:09,719 - __main__ - INFO - Fetching season URL: https://fbref.com/en/comps/9/Premier-League-Stats
+2025-05-02 11:48:09,950 - __main__ - WARNING - Could not find stats wrapper div, trying alternative methods
+2025-05-02 11:48:09,953 - __main__ - INFO - Found alternative table with team links
+2025-05-02 11:48:09,953 - __main__ - INFO - Found 20 teams
+2025-05-02 11:48:09,953 - __main__ - INFO - Found exact match for Arsenal
+2025-05-02 11:48:14,958 - __main__ - INFO - Looking for Tottenham in league ID 9
+2025-05-02 11:48:14,959 - __main__ - INFO - Fetching league base URL: https://fbref.com/en/comps/9/Premier-League-Stats
+2025-05-02 11:48:15,171 - __main__ - WARNING - Could not find season dropdown on page
+2025-05-02 11:48:15,171 - __main__ - INFO - Fetching season URL: https://fbref.com/en/comps/9/Premier-League-Stats
+2025-05-02 11:48:15,350 - __main__ - WARNING - Could not find stats wrapper div, trying alternative methods
+2025-05-02 11:48:15,353 - __main__ - INFO - Found alternative table with team links
+2025-05-02 11:48:15,353 - __main__ - INFO - Found 20 teams
+2025-05-02 11:48:15,353 - __main__ - INFO - Found exact match for Tottenham
+2025-05-02 11:48:20,359 - __main__ - INFO - Fetching match logs for Arsenal from https://fbref.com/en/squads/18bb7c10/matchlogs/2024/summary/
+2025-05-02 11:48:20,635 - __main__ - INFO - Found 7 matches for Arsenal
+2025-05-02 11:48:25,640 - __main__ - INFO - Fetching match logs for Tottenham Hotspur from https://fbref.com/en/squads/361ca564/matchlogs/2024/summary/
+2025-05-02 11:48:26,959 - __main__ - INFO - Found 7 matches for Tottenham Hotspur
+2025-05-02 11:48:26,967 - __main__ - INFO - Saved 7 matches for Arsenal
+2025-05-02 11:48:26,967 - __main__ - INFO - Saved 7 matches for Tottenham
+2025-05-02 11:48:26,967 - __main__ - INFO - Saved combined history with 14 matches
+2025-05-02 11:48:26,968 - __main__ - INFO - Reached limit of 1 fixtures
+2025-05-02 11:48:26,968 - __main__ - INFO - Pipeline complete. Processed 1 fixtures
+2025-05-02 12:05:32,754 - __main__ - INFO - Loading upcoming matches from test_matches.csv
+2025-05-02 12:05:32,759 - __main__ - WARNING - No date column found, using current date
+2025-05-02 12:05:32,759 - __main__ - INFO - Loaded 1 upcoming matches
+2025-05-02 12:05:32,759 - __main__ - INFO - Processing fixture 1/1: Arsenal vs Tottenham
+2025-05-02 12:05:32,759 - __main__ - INFO - Looking for Arsenal in league ID 9
+2025-05-02 12:05:32,759 - __main__ - INFO - Fetching league base URL: https://fbref.com/en/comps/9/Premier-League-Stats
+2025-05-02 12:05:32,985 - __main__ - WARNING - Could not find season dropdown on page
+2025-05-02 12:05:32,985 - __main__ - INFO - Fetching season URL: https://fbref.com/en/comps/9/Premier-League-Stats
+2025-05-02 12:05:33,194 - __main__ - WARNING - Could not find stats wrapper div, trying alternative methods
+2025-05-02 12:05:33,197 - __main__ - INFO - Found alternative table with team links
+2025-05-02 12:05:33,198 - __main__ - INFO - Found 20 teams
+2025-05-02 12:05:33,198 - __main__ - INFO - Found exact match for Arsenal
+2025-05-02 12:05:38,203 - __main__ - INFO - Looking for Tottenham in league ID 9
+2025-05-02 12:05:38,203 - __main__ - INFO - Fetching league base URL: https://fbref.com/en/comps/9/Premier-League-Stats
+2025-05-02 12:05:38,434 - __main__ - WARNING - Could not find season dropdown on page
+2025-05-02 12:05:38,434 - __main__ - INFO - Fetching season URL: https://fbref.com/en/comps/9/Premier-League-Stats
+2025-05-02 12:05:38,616 - __main__ - WARNING - Could not find stats wrapper div, trying alternative methods
+2025-05-02 12:05:38,619 - __main__ - INFO - Found alternative table with team links
+2025-05-02 12:05:38,619 - __main__ - INFO - Found 20 teams
+2025-05-02 12:05:38,619 - __main__ - INFO - Found exact match for Tottenham
+2025-05-02 12:05:43,625 - __main__ - INFO - Fetching match logs for Arsenal from https://fbref.com/en/squads/18bb7c10/matchlogs/2025/summary/
+2025-05-02 12:05:43,963 - __main__ - INFO - Found 7 matches for Arsenal
+2025-05-02 12:05:48,968 - __main__ - INFO - Fetching match logs for Tottenham Hotspur from https://fbref.com/en/squads/361ca564/matchlogs/2025/summary/
+2025-05-02 12:05:49,336 - __main__ - INFO - Found 7 matches for Tottenham Hotspur
+2025-05-02 12:05:49,342 - __main__ - INFO - Saved 7 matches for Arsenal
+2025-05-02 12:05:49,343 - __main__ - INFO - Saved 7 matches for Tottenham
+2025-05-02 12:05:49,343 - __main__ - INFO - Saved combined history with 14 matches
+2025-05-02 12:05:49,343 - __main__ - INFO - Reached limit of 1 fixtures
+2025-05-02 12:05:49,343 - __main__ - INFO - Pipeline complete. Processed 1 fixtures
+2025-05-02 12:17:27,647 - __main__ - INFO - Loading upcoming matches from test_matches.csv
+2025-05-02 12:17:27,651 - __main__ - WARNING - No date column found, using current date
+2025-05-02 12:17:27,651 - __main__ - INFO - Loaded 1 upcoming matches
+2025-05-02 12:17:27,652 - __main__ - INFO - Processing fixture 1/1: Arsenal vs Tottenham
+2025-05-02 12:17:27,652 - __main__ - INFO - Looking for Arsenal in league ID 9
+2025-05-02 12:17:27,652 - __main__ - INFO - Fetching league base URL: https://fbref.com/en/comps/9/Premier-League-Stats
+2025-05-02 12:17:27,893 - __main__ - WARNING - Could not find season dropdown on page
+2025-05-02 12:17:27,893 - __main__ - INFO - Fetching season URL: https://fbref.com/en/comps/9/Premier-League-Stats
+2025-05-02 12:17:28,108 - __main__ - WARNING - Could not find stats wrapper div, trying alternative methods
+2025-05-02 12:17:28,111 - __main__ - INFO - Found alternative table with team links
+2025-05-02 12:17:28,111 - __main__ - INFO - Found 20 teams
+2025-05-02 12:17:28,111 - __main__ - INFO - Found exact match for Arsenal
+2025-05-02 12:17:33,117 - __main__ - INFO - Looking for Tottenham in league ID 9
+2025-05-02 12:17:33,117 - __main__ - INFO - Fetching league base URL: https://fbref.com/en/comps/9/Premier-League-Stats
+2025-05-02 12:17:33,331 - __main__ - WARNING - Could not find season dropdown on page
+2025-05-02 12:17:33,332 - __main__ - INFO - Fetching season URL: https://fbref.com/en/comps/9/Premier-League-Stats
+2025-05-02 12:17:33,509 - __main__ - WARNING - Could not find stats wrapper div, trying alternative methods
+2025-05-02 12:17:33,512 - __main__ - INFO - Found alternative table with team links
+2025-05-02 12:17:33,512 - __main__ - INFO - Found 20 teams
+2025-05-02 12:17:33,513 - __main__ - INFO - Found exact match for Tottenham
+2025-05-02 12:17:38,518 - __main__ - INFO - Fetching match logs for Arsenal from https://fbref.com/en/squads/18bb7c10/matchlogs/2025/summary/
+2025-05-02 12:17:38,638 - __main__ - INFO - Found 7 matches for Arsenal
+2025-05-02 12:17:43,644 - __main__ - INFO - Fetching match logs for Tottenham Hotspur from https://fbref.com/en/squads/361ca564/matchlogs/2025/summary/
+2025-05-02 12:17:43,862 - __main__ - INFO - Found 7 matches for Tottenham Hotspur
+2025-05-02 12:17:43,868 - __main__ - INFO - Saved 7 matches for Arsenal
+2025-05-02 12:17:43,868 - __main__ - INFO - Saved 7 matches for Tottenham
+2025-05-02 12:17:43,869 - __main__ - INFO - Saved combined history with 14 matches
+2025-05-02 12:17:43,869 - __main__ - INFO - Reached limit of 1 fixtures
+2025-05-02 12:17:43,869 - __main__ - INFO - Pipeline complete. Processed 1 fixtures

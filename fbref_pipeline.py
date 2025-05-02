@@ -55,143 +55,123 @@ def get_team_url(league_id, season_slug, team_name):
     """
     logger.info(f"Looking for {team_name} in league ID {league_id}")
     
-    # League name mapping
-    league_names = {
-        9: "Premier-League",
-        12: "La-Liga",
-        20: "Bundesliga",
-        11: "Serie-A",
-        13: "Ligue-1"
-    }
+    # Try different URL patterns and seasons
+    url_patterns = [
+        # Current season
+        f"https://fbref.com/en/comps/{league_id}/{season_slug}/{season_slug}-Stats",
+        # Alternative URL format
+        f"https://fbref.com/en/comps/{league_id}/stats/{season_slug}-Stats",
+        # Try previous season as fallback
+        f"https://fbref.com/en/comps/{league_id}/2022-2023/2022-2023-Stats",
+    ]
     
-    league_name_slug = league_names.get(league_id, "Premier-League")
-    
-    try:
-        # Step 1: Fetch the league's main stats page
-        base_url = f"https://fbref.com/en/comps/{league_id}/{league_name_slug}-Stats"
-        logger.info(f"Fetching league base URL: {base_url}")
-        
-        resp = requests.get(base_url)
-        if resp.status_code != 200:
-            logger.warning(f"Failed to access {base_url}, status: {resp.status_code}")
-            return None
+    for base_url in url_patterns:
+        try:
+            logger.info(f"Trying URL: {base_url}")
             
-        soup = BeautifulSoup(resp.text, "lxml")
-        
-        # Step 2: Find the season dropdown and get the correct season URL
-        season_select = soup.find("select", id="season_select")
-        if not season_select:
-            season_select = soup.find("select", id="season")  # Alternative ID
+            # Add proper headers to avoid being blocked
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Referer': 'https://fbref.com/',
+                'Connection': 'keep-alive'
+            }
             
-        if not season_select:
-            logger.warning("Could not find season dropdown on page")
-            season_url = base_url  # Fallback to base URL
-        else:
-            # Find the target season option
-            season_opt = None
-            for option in season_select.find_all("option"):
-                if season_slug in option.text:
-                    season_opt = option
-                    break
+            resp = requests.get(base_url, headers=headers)
+            
+            if resp.status_code != 200:
+                logger.warning(f"Failed to access {base_url}, status: {resp.status_code}")
+                continue
+                
+            soup = BeautifulSoup(resp.text, "lxml")
+            
+            # Try to find the table in different ways
+            
+            # 1. First, look for the wrapper div
+            wrapper_div = soup.find("div", id="all_stats_squads_standard_for")
+            
+            if wrapper_div:
+                # Try to extract from HTML comment
+                from bs4 import Comment
+                comment = wrapper_div.find(string=lambda txt: isinstance(txt, Comment))
+                
+                if comment:
+                    # Parse the commented HTML
+                    comment_soup = BeautifulSoup(comment, "lxml")
+                    table = comment_soup.find("table", id="stats_squads_standard_for")
                     
-            if not season_opt:
-                logger.warning(f"Season {season_slug} not found in dropdown, using current season")
-                season_url = base_url
-            else:
-                # Get the season-specific URL
-                season_path = season_opt.get("value", "")
-                if season_path.startswith("/"):
-                    season_url = f"https://fbref.com{season_path}"
+                    if table:
+                        team_links = table.select("tbody tr td a")
+                        if team_links:
+                            logger.info(f"Found team links in commented table")
+                        else:
+                            logger.warning("No team links found in commented table")
+                            continue
+                    else:
+                        logger.warning("No table found in comment")
+                        continue
                 else:
-                    # Handle relative paths if needed
-                    season_url = f"https://fbref.com/en/comps/{league_id}/{season_path}"
-                    
-        # Step 3: Fetch the season-specific page
-        logger.info(f"Fetching season URL: {season_url}")
-        resp2 = requests.get(season_url)
-        if resp2.status_code != 200:
-            logger.warning(f"Failed to access {season_url}, status: {resp2.status_code}")
-            return None
-            
-        soup2 = BeautifulSoup(resp2.text, "lxml")
-        
-        # Step 4: Find the team stats table (often in HTML comments)
-        from bs4 import Comment
-        
-        # Find the wrapper div
-        wrapper_div = soup2.find("div", id="all_stats_squads_standard_for")
-        
-        if not wrapper_div:
-            logger.warning("Could not find stats wrapper div, trying alternative methods")
-            # Try to find any table with team links as fallback
-            tables = soup2.find_all("table")
-            for table in tables:
-                links = table.select("tbody tr td a")
-                if links and any("/squads/" in link.get("href", "") for link in links):
-                    logger.info("Found alternative table with team links")
-                    team_links = links
-                    break
+                    logger.warning("No commented table found in wrapper")
+                    continue
             else:
-                logger.warning("No suitable tables found")
-                return None
-        else:
-            # Extract from HTML comment
-            comment = wrapper_div.find(string=lambda txt: isinstance(txt, Comment))
+                # 2. If no wrapper div, try to find the table directly
+                table = soup.find("table", id="stats_squads_standard_for")
+                
+                if not table:
+                    # 3. Try any table with team links as fallback
+                    tables = soup.find_all("table")
+                    for t in tables:
+                        links = t.select("tbody tr td a")
+                        if links and any("/squads/" in link.get("href", "") for link in links):
+                            logger.info("Found alternative table with team links")
+                            team_links = links
+                            break
+                    else:
+                        logger.warning("No suitable tables found")
+                        continue
+                else:
+                    team_links = table.select("tbody tr td a")
             
-            if not comment:
-                logger.warning("No commented table found in wrapper")
-                return None
-                
-            # Parse the commented HTML
-            cleaned = BeautifulSoup(comment, "lxml")
-            table = cleaned.find("table", id="stats_squads_standard_for")
+            # Create mapping of team names to URLs
+            team_map = {}
+            for link in team_links:
+                href = link.get("href", "")
+                if "/squads/" in href:
+                    team_map[link.text.strip()] = f"https://fbref.com{href}"
             
-            if not table:
-                logger.warning("No table found in comment")
-                return None
-                
-            # Get team links
-            team_links = table.select("tbody tr td a")
-        
-        # Step 5: Create mapping of team names to URLs
-        team_map = {}
-        for link in team_links:
-            href = link.get("href", "")
-            if "/squads/" in href:
-                team_map[link.text.strip()] = f"https://fbref.com{href}"
-        
-        logger.info(f"Found {len(team_map)} teams")
-        
-        # Step 6: Find the requested team
-        # Exact match
-        if team_name in team_map:
-            logger.info(f"Found exact match for {team_name}")
-            return team_map[team_name]
-        
-        # Case-insensitive match
-        for name, url in team_map.items():
-            if team_name.lower() == name.lower():
-                logger.info(f"Found case-insensitive match: '{name}' for '{team_name}'")
-                return url
-        
-        # Partial match
-        for name, url in team_map.items():
-            if team_name.lower() in name.lower() or name.lower() in team_name.lower():
-                logger.info(f"Found partial match: '{name}' for '{team_name}'")
-                return url
-                
-        logger.warning(f"Team '{team_name}' not found in team list")
-        return None
-        
-    except Exception as e:
-        logger.error(f"Error finding team URL: {str(e)}")
-        import traceback
-        logger.error(traceback.format_exc())
-        return None
+            logger.info(f"Found {len(team_map)} teams")
+            
+            # Try to find the requested team
+            # 1. Exact match
+            if team_name in team_map:
+                logger.info(f"Found exact match for {team_name}")
+                return team_map[team_name]
+            
+            # 2. Case-insensitive match
+            for name, url in team_map.items():
+                if team_name.lower() == name.lower():
+                    logger.info(f"Found case-insensitive match: '{name}' for '{team_name}'")
+                    return url
+            
+            # 3. Partial match
+            for name, url in team_map.items():
+                if team_name.lower() in name.lower() or name.lower() in team_name.lower():
+                    logger.info(f"Found partial match: '{name}' for '{team_name}'")
+                    return url
+                    
+            logger.warning(f"Team '{team_name}' not found in team list")
+            
+        except Exception as e:
+            logger.error(f"Error finding team URL: {str(e)}")
+            import traceback
+            logger.error(traceback.format_exc())
+    
+    return None
 
 def scrape_team_matchlogs(team_url, num_matches=7, season_end_year="2025"):
     """
-    Scrape match logs for a specific team
+    Scrape match logs for a specific team's most recent matches
     
     Args:
         team_url: URL of the team page
@@ -207,8 +187,8 @@ def scrape_team_matchlogs(team_url, num_matches=7, season_end_year="2025"):
     # Extract team ID from URL
     team_id = team_url.split("/")[5]
     
-    # Construct match logs URL
-    logs_url = f"https://fbref.com/en/squads/{team_id}/matchlogs/{season_end_year}/summary/"
+    # Construct match logs URL for current season
+    logs_url = f"https://fbref.com/en/squads/{team_id}/matchlogs/all_comps/summary/"
     
     logger.info(f"Fetching match logs for {team_name} from {logs_url}")
     
@@ -234,13 +214,52 @@ def scrape_team_matchlogs(team_url, num_matches=7, season_end_year="2025"):
         if isinstance(df.columns, pd.MultiIndex):
             df.columns = [' '.join(col).strip() for col in df.columns.values]
         
-        # Sort by date and take the most recent N matches
+        # Sort by date and filter for completed matches only (those with a result)
         if "Date" in df.columns:
             df["Date"] = pd.to_datetime(df["Date"])
             df = df.sort_values("Date", ascending=False)
-            df = df.head(num_matches)
+            
+        # Only include matches that have a result (not future fixtures)
+        if "Result" in df.columns:
+            df = df[df["Result"].notna() & (df["Result"] != "")]
         
-        logger.info(f"Found {len(df)} matches for {team_name}")
+        # Take only the specified number of most recent matches
+        df = df.head(num_matches)
+        
+        # If we didn't get enough matches, try to get matches from previous season
+        if len(df) < num_matches:
+            prev_logs_url = f"https://fbref.com/en/squads/{team_id}/{season_end_year-1}-{season_end_year}/matchlogs/all_comps/summary/"
+            logger.info(f"Not enough matches, trying previous season: {prev_logs_url}")
+            
+            try:
+                prev_resp = requests.get(prev_logs_url)
+                prev_soup = BeautifulSoup(prev_resp.text, "lxml")
+                prev_tbl = prev_soup.find("table", id=lambda x: x and "matchlogs" in x)
+                
+                if prev_tbl:
+                    prev_df = pd.read_html(str(prev_tbl))[0]
+                    prev_df["team"] = team_name
+                    
+                    # Clean up multi-index columns
+                    if isinstance(prev_df.columns, pd.MultiIndex):
+                        prev_df.columns = [' '.join(col).strip() for col in prev_df.columns.values]
+                    
+                    # Convert date and filter completed matches
+                    if "Date" in prev_df.columns:
+                        prev_df["Date"] = pd.to_datetime(prev_df["Date"])
+                        prev_df = prev_df.sort_values("Date", ascending=False)
+                    
+                    if "Result" in prev_df.columns:
+                        prev_df = prev_df[prev_df["Result"].notna() & (prev_df["Result"] != "")]
+                    
+                    # Combine and take the top N matches
+                    df = pd.concat([df, prev_df], ignore_index=True)
+                    df = df.sort_values("Date", ascending=False)
+                    df = df.head(num_matches)
+            except Exception as e:
+                logger.warning(f"Error fetching previous season: {str(e)}")
+        
+        logger.info(f"Found {len(df)} completed matches for {team_name}")
         
         return df
         
@@ -377,6 +396,44 @@ def load_upcoming_matches(csv_file):
         logger.error(f"Error loading upcoming matches: {str(e)}")
         return None
 
+
+def validate_match_data(csv_file):
+    """
+    Validate that match data contains only completed matches with statistics
+    
+    Args:
+        csv_file: Path to the CSV file to validate
+    """
+    print(f"\nValidating {csv_file}:")
+    try:
+        df = pd.read_csv(csv_file)
+        print(f"- Total rows: {len(df)}")
+        
+        # Check for completed matches (with results)
+        if 'result' in df.columns:
+            complete = df['result'].notna() & (df['result'] != '')
+            print(f"- Completed matches: {complete.sum()} of {len(df)}")
+        
+        # Check for non-zero statistics
+        if 'gf' in df.columns and 'ga' in df.columns:
+            has_goals = (df['gf'] > 0) | (df['ga'] > 0)
+            print(f"- Matches with goals: {has_goals.sum()} of {len(df)}")
+        
+        # Check date range
+        if 'date' in df.columns:
+            df['date'] = pd.to_datetime(df['date'])
+            print(f"- Date range: {df['date'].min()} to {df['date'].max()}")
+            
+            # Check for future fixtures
+            today = pd.Timestamp.now()
+            future = df[df['date'] > today]
+            if len(future) > 0:
+                print(f"- WARNING: {len(future)} future fixtures detected")
+                print(future[['date', 'team', 'opponent', 'result']].head())
+        
+    except Exception as e:
+        print(f"Error validating CSV: {str(e)}")
+
 def main():
     """Main function"""
     parser = argparse.ArgumentParser(description="FBref Match Statistics Pipeline")
@@ -398,7 +455,11 @@ def main():
     os.makedirs(args.output_dir, exist_ok=True)
     
     # Extract season end year
-    season_end_year = args.season.split('-')[1]
+    try:
+        season_end_year = int(args.season.split('-')[1])
+    except (ValueError, IndexError):
+        logger.warning(f"Invalid season format: {args.season}, using current year")
+        season_end_year = 2025  # Default to current year
     
     # Load upcoming matches
     upcoming = load_upcoming_matches(args.input)
@@ -411,11 +472,14 @@ def main():
     count = 0
     total_fixtures = len(upcoming)
     
+    # Track all matches for final validation
+    all_matches_data = []
+    
     for idx, fixture in upcoming.iterrows():
         try:
             home_team = fixture['home_team']
             away_team = fixture['away_team']
-            fixture_date = fixture.get('date', 'unknown')
+            fixture_date = fixture.get('date', datetime.now().strftime('%Y-%m-%d'))
             
             # Get league for each team
             home_league = fixture.get('home_league', args.default_league)
@@ -453,24 +517,71 @@ def main():
             
             away_df = scrape_team_matchlogs(away_url, args.matches, season_end_year)
             
-            # Process match data
+            # Process match data and filter out future fixtures
             home_clean = process_match_data(home_df)
             away_clean = process_match_data(away_df)
             
-            # Add team role
+            # Filter out future matches and ensure non-zero stats
+            today = datetime.now().date()
+            
+            if not home_clean.empty and 'date' in home_clean.columns:
+                # Convert date to datetime if it's not already
+                if not pd.api.types.is_datetime64_dtype(home_clean['date']):
+                    home_clean['date'] = pd.to_datetime(home_clean['date'])
+                
+                # Filter out future matches
+                home_clean = home_clean[home_clean['date'].dt.date <= today]
+                
+                # Ensure we have actual results (non-blank)
+                if 'result' in home_clean.columns:
+                    home_clean = home_clean[home_clean['result'].notna() & (home_clean['result'] != '')]
+                
+                # Check for non-zero statistics
+                if len(home_clean) > 0 and any(col in home_clean.columns for col in ['gf', 'ga', 'xg']):
+                    stats_cols = [col for col in ['gf', 'ga', 'xg'] if col in home_clean.columns]
+                    if stats_cols:
+                        # Keep only matches with some statistics
+                        home_clean = home_clean[home_clean[stats_cols].sum(axis=1) > 0]
+            
+            if not away_clean.empty and 'date' in away_clean.columns:
+                # Convert date to datetime if it's not already
+                if not pd.api.types.is_datetime64_dtype(away_clean['date']):
+                    away_clean['date'] = pd.to_datetime(away_clean['date'])
+                
+                # Filter out future matches
+                away_clean = away_clean[away_clean['date'].dt.date <= today]
+                
+                # Ensure we have actual results (non-blank)
+                if 'result' in away_clean.columns:
+                    away_clean = away_clean[away_clean['result'].notna() & (away_clean['result'] != '')]
+                
+                # Check for non-zero statistics
+                if len(away_clean) > 0 and any(col in away_clean.columns for col in ['gf', 'ga', 'xg']):
+                    stats_cols = [col for col in ['gf', 'ga', 'xg'] if col in away_clean.columns]
+                    if stats_cols:
+                        # Keep only matches with some statistics
+                        away_clean = away_clean[away_clean[stats_cols].sum(axis=1) > 0]
+            
+            # Add team role and track all data
             if not home_clean.empty:
                 home_clean['team_role'] = 'home'
                 home_clean.to_csv(os.path.join(fixture_dir, f"{home_team}_history.csv"), index=False)
-                logger.info(f"Saved {len(home_clean)} matches for {home_team}")
+                logger.info(f"Saved {len(home_clean)} completed matches for {home_team}")
+                all_matches_data.append(home_clean)
             
             if not away_clean.empty:
                 away_clean['team_role'] = 'away'
                 away_clean.to_csv(os.path.join(fixture_dir, f"{away_team}_history.csv"), index=False)
-                logger.info(f"Saved {len(away_clean)} matches for {away_team}")
+                logger.info(f"Saved {len(away_clean)} completed matches for {away_team}")
+                all_matches_data.append(away_clean)
             
             # Combine data
             if not home_clean.empty and not away_clean.empty:
                 combined = pd.concat([home_clean, away_clean], ignore_index=True)
+                # Sort by date (most recent first) and remove duplicates
+                if 'date' in combined.columns:
+                    combined = combined.sort_values('date', ascending=False)
+                combined = combined.drop_duplicates(subset=['match_id', 'team'])
                 combined.to_csv(os.path.join(fixture_dir, "combined_history.csv"), index=False)
                 logger.info(f"Saved combined history with {len(combined)} matches")
             
@@ -482,7 +593,9 @@ def main():
                 'home_league': home_league,
                 'away_league': away_league,
                 'home_matches_found': len(home_clean),
-                'away_matches_found': len(away_clean)
+                'away_matches_found': len(away_clean),
+                'home_latest_match': home_clean['date'].max() if not home_clean.empty and 'date' in home_clean.columns else None,
+                'away_latest_match': away_clean['date'].max() if not away_clean.empty and 'date' in away_clean.columns else None
             }
             
             pd.DataFrame([fixture_summary]).to_csv(
@@ -506,8 +619,32 @@ def main():
             import traceback
             logger.error(traceback.format_exc())
     
+    # Save all matches to a single file if we have data
+    if all_matches_data:
+        all_matches = pd.concat(all_matches_data, ignore_index=True)
+        # Remove duplicates
+        all_matches = all_matches.drop_duplicates(subset=['match_id', 'team'])
+        all_matches_file = os.path.join(args.output_dir, "all_matches.csv")
+        all_matches.to_csv(all_matches_file, index=False)
+        logger.info(f"Saved {len(all_matches)} total matches to {all_matches_file}")
+        
+        # Validate and print summary
+        logger.info("\nMatch Data Summary:")
+        if 'date' in all_matches.columns:
+            min_date = all_matches['date'].min()
+            max_date = all_matches['date'].max()
+            logger.info(f"Date range: {min_date} to {max_date}")
+        
+        if 'result' in all_matches.columns:
+            win_count = len(all_matches[all_matches['result'] == 'W'])
+            loss_count = len(all_matches[all_matches['result'] == 'L'])
+            draw_count = len(all_matches[all_matches['result'] == 'D'])
+            logger.info(f"Results: {win_count} wins, {loss_count} losses, {draw_count} draws")
+        
+        if 'gf' in all_matches.columns and 'ga' in all_matches.columns:
+            total_gf = all_matches['gf'].sum()
+            total_ga = all_matches['ga'].sum()
+            logger.info(f"Goals: {total_gf} for, {total_ga} against")
+    
     logger.info(f"Pipeline complete. Processed {count} fixtures")
     return 0
-
-if __name__ == "__main__":
-    sys.exit(main())
