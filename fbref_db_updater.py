@@ -21,7 +21,7 @@ import pandas as pd
 import random
 
 # Import the database connector
-from db_connector import FootballDBConnector
+from data_processing.db_connector import FootballDBConnector
 
 # Add parent directory to path for importing the FBref scraper
 script_dir = os.path.dirname(os.path.abspath(__file__))
