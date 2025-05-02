@@ -1,6 +1,5 @@
 """
-PostgreSQL database connector for the Football Intelligence project.
-Focuses solely on storing raw data without any processing or analysis.
+PostgreSQL database connector for storing FBref match statistics.
 """
 import os
 import logging
@@ -24,7 +23,7 @@ logger = logging.getLogger(__name__)
 class DatabaseConnector:
     """
     PostgreSQL database connector for the Football Intelligence project.
-    Handles database connections, schema creation, and raw data operations.
+    Handles database connections, schema creation, and match data operations.
     """
     
     def __init__(self, 
@@ -173,7 +172,7 @@ class DatabaseConnector:
     def create_schema(self):
         """
         Create the database schema if it doesn't exist.
-        Focuses on storing raw data without any processing.
+        Designed for FBref match statistics data.
         
         Returns:
             True if successful, False otherwise
@@ -183,7 +182,8 @@ class DatabaseConnector:
             self.execute_query("""
                 CREATE TABLE IF NOT EXISTS league (
                     league_id   SERIAL PRIMARY KEY,
-                    league_name TEXT   NOT NULL UNIQUE
+                    league_name TEXT   NOT NULL UNIQUE,
+                    country     TEXT
                 )
             """)
             
@@ -192,35 +192,44 @@ class DatabaseConnector:
                 CREATE TABLE IF NOT EXISTS team (
                     team_id     SERIAL PRIMARY KEY,
                     team_name   TEXT   NOT NULL UNIQUE,
-                    league_id   INTEGER NOT NULL 
+                    league_id   INTEGER 
                         REFERENCES league(league_id)
                         ON UPDATE CASCADE
                         ON DELETE RESTRICT
                 )
             """)
             
-            # Create match table with all raw data fields
+            # Create match table with fields for FBref match stats
             self.execute_query("""
                 CREATE TABLE IF NOT EXISTS match (
-                    match_id    TEXT      PRIMARY KEY,
-                    date        DATE      NOT NULL,
-                    team_id     INTEGER   NOT NULL
+                    match_id        TEXT      PRIMARY KEY,
+                    date            DATE      NOT NULL,
+                    team_id         INTEGER   NOT NULL
                         REFERENCES team(team_id),
-                    opponent_id INTEGER   NOT NULL
+                    opponent_id     INTEGER   NOT NULL
                         REFERENCES team(team_id),
-                    gf          SMALLINT,
-                    ga          SMALLINT,
-                    sh          SMALLINT,
-                    sot         SMALLINT,
-                    dist        REAL,
-                    fk          SMALLINT,
-                    pk          SMALLINT,
-                    pkatt       SMALLINT,
-                    corners     SMALLINT,
-                    opp_corners SMALLINT,
-                    scrape_date TIMESTAMP NOT NULL DEFAULT now(),
-                    source      TEXT,
-                    status      TEXT      NOT NULL
+                    venue           TEXT,
+                    competition     TEXT,
+                    round           TEXT,
+                    result          TEXT,
+                    gf              SMALLINT,
+                    ga              SMALLINT,
+                    xg              REAL,
+                    xga             REAL,
+                    sh              SMALLINT,
+                    sot             SMALLINT,
+                    dist            REAL,
+                    fk              SMALLINT,
+                    pk              SMALLINT,
+                    pkatt           SMALLINT,
+                    possession      REAL,
+                    yellow_cards    SMALLINT,
+                    red_cards       SMALLINT,
+                    fouls           SMALLINT,
+                    corners         SMALLINT,
+                    opp_corners     SMALLINT,
+                    scrape_date     TIMESTAMP NOT NULL DEFAULT now(),
+                    source          TEXT
                 )
             """)
             
@@ -239,7 +248,7 @@ class DatabaseConnector:
     
     def import_leagues_from_csv(self, csv_path):
         """
-        Import leagues from a CSV file without any processing.
+        Import leagues from a CSV file.
         
         Args:
             csv_path: Path to the CSV file
@@ -251,19 +260,33 @@ class DatabaseConnector:
             # Read CSV file
             df = pd.read_csv(csv_path)
             
-            if 'league' not in df.columns:
-                logger.error("CSV file does not contain a 'league' column")
+            # Check for league/competition column
+            league_col = None
+            for col in ['league', 'competition', 'comp']:
+                if col in df.columns:
+                    league_col = col
+                    break
+            
+            if not league_col:
+                logger.error("CSV file does not contain a league/competition column")
                 return 0
             
             # Get unique leagues
-            leagues = df['league'].dropna().unique()
+            leagues = df[league_col].dropna().unique()
             
             # Insert leagues into database
             count = 0
             for league in leagues:
+                # Try to determine country from data
+                country = "Unknown"
+                if 'country' in df.columns:
+                    country_values = df[df[league_col] == league]['country'].dropna().unique()
+                    if len(country_values) > 0:
+                        country = country_values[0]
+                
                 result = self.execute_query(
-                    "INSERT INTO league (league_name) VALUES (%s) ON CONFLICT (league_name) DO NOTHING",
-                    (league,)
+                    "INSERT INTO league (league_name, country) VALUES (%s, %s) ON CONFLICT (league_name) DO NOTHING",
+                    (league, country)
                 )
                 if result:
                     count += 1
@@ -277,7 +300,7 @@ class DatabaseConnector:
     
     def import_teams_from_csv(self, csv_path):
         """
-        Import teams from a CSV file without any processing.
+        Import teams from a CSV file.
         
         Args:
             csv_path: Path to the CSV file
@@ -289,42 +312,61 @@ class DatabaseConnector:
             # Read CSV file
             df = pd.read_csv(csv_path)
             
-            if 'home_team' not in df.columns or 'away_team' not in df.columns or 'league' not in df.columns:
-                logger.error("CSV file does not contain required columns: home_team, away_team, league")
+            # Check for required columns
+            required_cols = ['team', 'opponent']
+            missing_cols = [col for col in required_cols if col not in df.columns]
+            
+            if missing_cols:
+                logger.error(f"CSV file missing required columns: {missing_cols}")
                 return 0
             
-            # Get all teams and their leagues
-            home_teams = df[['home_team', 'league']].drop_duplicates().dropna()
-            away_teams = df[['away_team', 'league']].drop_duplicates().dropna()
-            away_teams.columns = ['home_team', 'league']  # Rename for concatenation
+            # Find league column
+            league_col = None
+            for col in ['league', 'competition', 'comp']:
+                if col in df.columns:
+                    league_col = col
+                    break
             
-            all_teams = pd.concat([home_teams, away_teams]).drop_duplicates()
+            # Get all unique teams
+            teams = set(df['team'].dropna().unique()) | set(df['opponent'].dropna().unique())
             
             # Insert teams into database
             count = 0
-            for _, row in all_teams.iterrows():
-                # First, make sure the league exists
-                self.cur.execute(
-                    "SELECT league_id FROM league WHERE league_name = %s",
-                    (row['league'],)
-                )
-                result = self.cur.fetchone()
+            for team in teams:
+                # Try to find the team's league
+                league_id = None
+                if league_col:
+                    team_leagues = df[df['team'] == team][league_col].dropna().unique()
+                    
+                    if len(team_leagues) > 0:
+                        # Get the league ID
+                        self.cur.execute(
+                            "SELECT league_id FROM league WHERE league_name = %s",
+                            (team_leagues[0],)
+                        )
+                        league_result = self.cur.fetchone()
+                        
+                        if league_result:
+                            league_id = league_result[0]
+                
+                # Insert the team
+                if league_id:
+                    query = """
+                    INSERT INTO team (team_name, league_id) 
+                    VALUES (%s, %s) 
+                    ON CONFLICT (team_name) DO NOTHING
+                    """
+                    result = self.execute_query(query, (team, league_id))
+                else:
+                    query = """
+                    INSERT INTO team (team_name) 
+                    VALUES (%s) 
+                    ON CONFLICT (team_name) DO NOTHING
+                    """
+                    result = self.execute_query(query, (team,))
                 
                 if result:
-                    league_id = result[0]
-                    
-                    # Insert the team if it doesn't exist
-                    result = self.execute_query(
-                        """
-                        INSERT INTO team (team_name, league_id) 
-                        VALUES (%s, %s) 
-                        ON CONFLICT (team_name) DO NOTHING
-                        """,
-                        (row['home_team'], league_id)
-                    )
-                    
-                    if result:
-                        count += 1
+                    count += 1
             
             logger.info(f"Imported {count} teams from {csv_path}")
             return count
@@ -335,7 +377,7 @@ class DatabaseConnector:
     
     def import_matches_from_csv(self, csv_path):
         """
-        Import matches from a CSV file without any processing.
+        Import matches from a CSV file.
         
         Args:
             csv_path: Path to the CSV file
@@ -347,100 +389,110 @@ class DatabaseConnector:
             # Read CSV file
             df = pd.read_csv(csv_path)
             
-            required_columns = ['id', 'home_team', 'away_team', 'date']
-            missing_columns = [col for col in required_columns if col not in df.columns]
+            # Check for match_id and date columns
+            if 'match_id' not in df.columns:
+                # Create match_id if it doesn't exist
+                if all(col in df.columns for col in ['date', 'team', 'opponent']):
+                    df['match_id'] = df.apply(
+                        lambda row: f"{str(row['date'])}_{row['team']}_{row['opponent']}",
+                        axis=1
+                    )
+                else:
+                    logger.error("CSV file missing required columns to create match_id")
+                    return 0
             
-            if missing_columns:
-                logger.error(f"CSV file missing required columns: {missing_columns}")
+            if 'date' not in df.columns:
+                logger.error("CSV file missing 'date' column")
                 return 0
             
-            # Convert date column to datetime if it's not already
-            if df['date'].dtype == 'object':
-                df['date'] = pd.to_datetime(df['date'])
+            # Ensure date is in datetime format
+            df['date'] = pd.to_datetime(df['date'])
             
-            # Prepare a list to hold match data for batch insert
+            # Prepare matches for insertion
             match_data = []
             
             for _, row in df.iterrows():
-                # Get team IDs from database
-                self.cur.execute("SELECT team_id FROM team WHERE team_name = %s", (row['home_team'],))
-                home_result = self.cur.fetchone()
+                # Get team IDs
+                team_name = row['team']
+                opponent_name = row['opponent']
                 
-                self.cur.execute("SELECT team_id FROM team WHERE team_name = %s", (row['away_team'],))
-                away_result = self.cur.fetchone()
+                self.cur.execute("SELECT team_id FROM team WHERE team_name = %s", (team_name,))
+                team_result = self.cur.fetchone()
                 
-                if not home_result or not away_result:
-                    logger.warning(f"Team not found in database: {row['home_team']} or {row['away_team']}")
+                self.cur.execute("SELECT team_id FROM team WHERE team_name = %s", (opponent_name,))
+                opponent_result = self.cur.fetchone()
+                
+                if not team_result or not opponent_result:
+                    logger.warning(f"Team not found: {team_name} or {opponent_name}")
                     continue
                 
-                team_id = home_result[0]
-                opponent_id = away_result[0]
+                team_id = team_result[0]
+                opponent_id = opponent_result[0]
                 
-                # Extract match stats if available - storing raw values without processing
-                match_stats = {
-                    'gf': row.get('home_score', None),
-                    'ga': row.get('away_score', None),
-                    'sh': row.get('home_shots', None),
-                    'sot': row.get('home_shots_on_target', None),
-                    'dist': row.get('home_shot_distance', None),
-                    'fk': row.get('home_free_kicks', None),
-                    'pk': row.get('home_penalties', None),
-                    'pkatt': row.get('home_penalty_attempts', None),
-                    'corners': row.get('home_corners', None),
-                    'opp_corners': row.get('away_corners', None),
-                    'source': row.get('source', None),
-                }
-                
-                # Determine match status
-                status = row.get('status', 'scheduled')
-                if pd.isna(status) or status == '':
-                    status = 'scheduled'
-                
-                # Add match to batch
+                # Extract match data
                 match_data.append((
-                    row['id'],
+                    row['match_id'],
                     row['date'].strftime('%Y-%m-%d'),
                     team_id,
                     opponent_id,
-                    match_stats['gf'],
-                    match_stats['ga'],
-                    match_stats['sh'],
-                    match_stats['sot'],
-                    match_stats['dist'],
-                    match_stats['fk'],
-                    match_stats['pk'],
-                    match_stats['pkatt'],
-                    match_stats['corners'],
-                    match_stats['opp_corners'],
+                    row.get('venue', None),
+                    row.get('competition', row.get('league', None)),
+                    row.get('round', None),
+                    row.get('result', None),
+                    row.get('gf', None),
+                    row.get('ga', None),
+                    row.get('xg', None),
+                    row.get('xga', None),
+                    row.get('sh', None),
+                    row.get('sot', None),
+                    row.get('dist', None),
+                    row.get('fk', None),
+                    row.get('pk', None),
+                    row.get('pkatt', None),
+                    row.get('possession', None),
+                    row.get('yellow_cards', None),
+                    row.get('red_cards', None),
+                    row.get('fouls', None),
+                    row.get('corners', None),
+                    row.get('opp_corners', None),
                     datetime.now(),
-                    match_stats['source'],
-                    status
+                    row.get('source', 'fbref')
                 ))
             
-            # Batch insert using execute_values
+            # Batch insert matches
             if match_data:
                 insert_query = """
                 INSERT INTO match(
-                    match_id, date, team_id, opponent_id,
-                    gf, ga, sh, sot, dist, fk, pk, pkatt, 
-                    corners, opp_corners, scrape_date, source, status
+                    match_id, date, team_id, opponent_id, venue, competition,
+                    round, result, gf, ga, xg, xga, sh, sot, dist, fk, pk, pkatt,
+                    possession, yellow_cards, red_cards, fouls, corners, opp_corners,
+                    scrape_date, source
                 )
                 VALUES %s
                 ON CONFLICT(match_id) DO UPDATE
                 SET
-                    gf          = EXCLUDED.gf,
-                    ga          = EXCLUDED.ga,
-                    sh          = EXCLUDED.sh,
-                    sot         = EXCLUDED.sot,
-                    dist        = EXCLUDED.dist,
-                    fk          = EXCLUDED.fk,
-                    pk          = EXCLUDED.pk,
-                    pkatt       = EXCLUDED.pkatt,
-                    corners     = EXCLUDED.corners,
-                    opp_corners = EXCLUDED.opp_corners,
-                    source      = EXCLUDED.source,
-                    status      = EXCLUDED.status,
-                    scrape_date = EXCLUDED.scrape_date
+                    venue        = EXCLUDED.venue,
+                    competition  = EXCLUDED.competition,
+                    round        = EXCLUDED.round,
+                    result       = EXCLUDED.result,
+                    gf           = EXCLUDED.gf,
+                    ga           = EXCLUDED.ga,
+                    xg           = EXCLUDED.xg,
+                    xga          = EXCLUDED.xga,
+                    sh           = EXCLUDED.sh,
+                    sot          = EXCLUDED.sot,
+                    dist         = EXCLUDED.dist,
+                    fk           = EXCLUDED.fk,
+                    pk           = EXCLUDED.pk,
+                    pkatt        = EXCLUDED.pkatt,
+                    possession   = EXCLUDED.possession,
+                    yellow_cards = EXCLUDED.yellow_cards,
+                    red_cards    = EXCLUDED.red_cards,
+                    fouls        = EXCLUDED.fouls,
+                    corners      = EXCLUDED.corners,
+                    opp_corners  = EXCLUDED.opp_corners,
+                    scrape_date  = EXCLUDED.scrape_date,
+                    source       = EXCLUDED.source
                 """
                 
                 success = self.execute_values(insert_query, match_data)
@@ -455,186 +507,6 @@ class DatabaseConnector:
             logger.error(f"Error importing matches from CSV: {str(e)}")
             return 0
     
-    def get_raw_match_data(self, match_id=None, team_id=None, date_from=None, date_to=None, limit=None):
-        """
-        Get raw match data without any processing.
-        
-        Args:
-            match_id: Optional match ID to filter by
-            team_id: Optional team ID to filter by
-            date_from: Optional start date
-            date_to: Optional end date
-            limit: Optional limit on number of results
-            
-        Returns:
-            List of raw match data rows
-        """
-        try:
-            # Build query
-            query = """
-            SELECT 
-                m.*
-            FROM 
-                match m
-            WHERE 
-                1=1
-            """
-            
-            params = []
-            
-            # Apply filters
-            if match_id:
-                query += " AND m.match_id = %s"
-                params.append(match_id)
-            
-            if team_id:
-                query += " AND (m.team_id = %s OR m.opponent_id = %s)"
-                params.extend([team_id, team_id])
-            
-            if date_from:
-                query += " AND m.date >= %s"
-                params.append(date_from)
-            
-            if date_to:
-                query += " AND m.date <= %s"
-                params.append(date_to)
-            
-            # Add ordering
-            query += " ORDER BY m.date DESC"
-            
-            # Add limit
-            if limit:
-                query += " LIMIT %s"
-                params.append(limit)
-            
-            # Execute query
-            results = self.execute_query(query, tuple(params) if params else None)
-            
-            return results
-            
-        except Exception as e:
-            logger.error(f"Error getting raw match data: {str(e)}")
-            return []
-    
-    def get_raw_team_data(self, team_name=None, league_id=None):
-        """
-        Get raw team data without any processing.
-        
-        Args:
-            team_name: Optional team name to filter by
-            league_id: Optional league ID to filter by
-            
-        Returns:
-            List of raw team data rows
-        """
-        try:
-            # Build query
-            query = """
-            SELECT 
-                t.*
-            FROM 
-                team t
-            WHERE 
-                1=1
-            """
-            
-            params = []
-            
-            # Apply filters
-            if team_name:
-                query += " AND t.team_name = %s"
-                params.append(team_name)
-            
-            if league_id:
-                query += " AND t.league_id = %s"
-                params.append(league_id)
-            
-            # Add ordering
-            query += " ORDER BY t.team_name"
-            
-            # Execute query
-            results = self.execute_query(query, tuple(params) if params else None)
-            
-            return results
-            
-        except Exception as e:
-            logger.error(f"Error getting raw team data: {str(e)}")
-            return []
-    
-    def get_raw_league_data(self, league_name=None):
-        """
-        Get raw league data without any processing.
-        
-        Args:
-            league_name: Optional league name to filter by
-            
-        Returns:
-            List of raw league data rows
-        """
-        try:
-            # Build query
-            query = """
-            SELECT 
-                l.*
-            FROM 
-                league l
-            WHERE 
-                1=1
-            """
-            
-            params = []
-            
-            # Apply filters
-            if league_name:
-                query += " AND l.league_name = %s"
-                params.append(league_name)
-            
-            # Add ordering
-            query += " ORDER BY l.league_name"
-            
-            # Execute query
-            results = self.execute_query(query, tuple(params) if params else None)
-            
-            return results
-            
-        except Exception as e:
-            logger.error(f"Error getting raw league data: {str(e)}")
-            return []
-    
-    def export_to_csv(self, query, output_path):
-        """
-        Export raw query results to a CSV file without any processing.
-        
-        Args:
-            query: SQL query string
-            output_path: Path to save the CSV file
-            
-        Returns:
-            True if successful, False otherwise
-        """
-        try:
-            # Execute the query
-            self.cur.execute(query)
-            
-            # Get column names from cursor description
-            column_names = [desc[0] for desc in self.cur.description]
-            
-            # Fetch all rows
-            rows = self.cur.fetchall()
-            
-            # Create DataFrame from query results
-            df = pd.DataFrame(rows, columns=column_names)
-            
-            # Save to CSV
-            df.to_csv(output_path, index=False)
-            
-            logger.info(f"Exported {len(df)} rows to {output_path}")
-            return True
-            
-        except Exception as e:
-            logger.error(f"Error exporting to CSV: {str(e)}")
-            return False
-        
     def test_connection(self):
         """
         Test the database connection.

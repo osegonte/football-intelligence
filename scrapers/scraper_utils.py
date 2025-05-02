@@ -29,7 +29,7 @@ def get_random_headers():
         "Connection": "keep-alive"
     }
 
-def create_data_directories(base_dir="sofascore_data"):
+def create_data_directories(base_dir="fbref_data"):
     """
     Create necessary directories for storing scraped data
     
@@ -41,6 +41,8 @@ def create_data_directories(base_dir="sofascore_data"):
     """
     dirs = {
         "base": base_dir,
+        "teams": os.path.join(base_dir, "teams"),
+        "matches": os.path.join(base_dir, "matches"),
         "daily": os.path.join(base_dir, "daily"),
         "raw": os.path.join(base_dir, "raw")
     }
@@ -76,15 +78,22 @@ def save_matches_to_csv(matches, filename, additional_fields=None):
         print(f"No matches to save to {filename}")
         return
     
-    # Define default fieldnames
-    fieldnames = [
-        'id', 'home_team', 'away_team', 'league', 'country',
-        'start_timestamp', 'start_time', 'status', 'venue', 'round', 'source'
-    ]
+    # Define default fieldnames based on the keys in the first match
+    if isinstance(matches, list) and len(matches) > 0:
+        fieldnames = list(matches[0].keys())
+    else:
+        # Default fieldnames if the list is empty
+        fieldnames = [
+            'match_id', 'date', 'team', 'opponent', 'venue', 'competition',
+            'round', 'result', 'gf', 'ga', 'xg', 'xga', 'sh', 'sot',
+            'fk', 'pk', 'pkatt', 'possession', 'corners', 'source'
+        ]
     
     # Add additional fields if provided
     if additional_fields:
-        fieldnames.extend(additional_fields)
+        for field in additional_fields:
+            if field not in fieldnames:
+                fieldnames.append(field)
     
     # Ensure directory exists
     os.makedirs(os.path.dirname(filename), exist_ok=True)
@@ -96,7 +105,7 @@ def save_matches_to_csv(matches, filename, additional_fields=None):
         for match in matches:
             writer.writerow(match)
     
-    print(f"✓ Saved {len(matches)} matches to {filename}")
+    print(f"✅ Saved {len(matches)} matches to {filename}")
 
 def format_date_for_filename(start_date, end_date):
     """
@@ -111,116 +120,67 @@ def format_date_for_filename(start_date, end_date):
     """
     return f"{start_date.strftime('%Y%m%d')}_to_{end_date.strftime('%Y%m%d')}"
 
-def print_match_statistics(all_matches_by_date):
+def print_match_statistics(all_matches):
     """
     Print statistics about fetched matches
     
     Args:
-        all_matches_by_date: Dictionary mapping date strings to lists of match dictionaries
+        all_matches: List of match dictionaries or DataFrame
     """
-    if not all_matches_by_date:
-        print("No matches to analyze")
-        return
-    
-    # Flatten all matches
-    all_matches = []
-    for matches in all_matches_by_date.values():
-        all_matches.extend(matches)
-    
     if not all_matches:
         print("No matches to analyze")
         return
     
-    # Group by source
-    sources = {}
-    for match in all_matches:
-        source = match.get('source', 'unknown')
-        if source not in sources:
-            sources[source] = []
-        sources[source].append(match)
+    # Convert to list if it's a DataFrame
+    if hasattr(all_matches, 'to_dict'):
+        all_matches = all_matches.to_dict(orient='records')
     
-    # Group by league
-    leagues = {}
+    # Group by competition/league
+    competitions = {}
     for match in all_matches:
-        league = match['league']
-        if league not in leagues:
-            leagues[league] = []
-        leagues[league].append(match)
+        comp = match.get('competition', match.get('league', 'Unknown'))
+        if comp not in competitions:
+            competitions[comp] = []
+        competitions[comp].append(match)
     
-    # Group by country
-    countries = {}
+    # Group by team
+    teams = {}
     for match in all_matches:
-        country = match.get('country', 'Unknown')
-        if country not in countries:
-            countries[country] = []
-        countries[country].append(match)
+        team = match.get('team', 'Unknown')
+        if team not in teams:
+            teams[team] = []
+        teams[team].append(match)
+        
+        # Also count opponents
+        opponent = match.get('opponent', 'Unknown')
+        if opponent not in teams:
+            teams[opponent] = []
     
     # Print summary
     print("\n=== Match Statistics ===")
     print(f"Total Matches: {len(all_matches)}")
-    print(f"Date Range: {min(all_matches_by_date.keys())} to {max(all_matches_by_date.keys())}")
-    print(f"Days with Matches: {len(all_matches_by_date)}")
-    print(f"Total Leagues: {len(leagues)}")
-    print(f"Total Countries/Regions: {len(countries)}")
     
-    # Print matches by source
-    print("\nMatches by Source:")
-    for source, matches in sources.items():
-        print(f"  • {source}: {len(matches)} matches")
+    # Print competitions
+    print("\nMatches by Competition:")
+    for comp, matches in sorted(competitions.items(), key=lambda x: len(x[1]), reverse=True):
+        print(f"  • {comp}: {len(matches)} matches")
     
-    # Print matches per day
-    print("\nMatches per Day:")
-    for date_str, matches in sorted(all_matches_by_date.items()):
-        print(f"  • {date_str}: {len(matches)} matches")
+    # Print top teams
+    print("\nTop 10 Teams by Match Count:")
+    top_teams = sorted(teams.items(), key=lambda x: len(x[1]), reverse=True)[:10]
+    for team, matches in top_teams:
+        print(f"  • {team}: {len(matches)} matches")
     
-    # Print top leagues
-    print("\nTop 10 Leagues by Match Count:")
-    top_leagues = sorted(leagues.items(), key=lambda x: len(x[1]), reverse=True)[:10]
-    for league, matches in top_leagues:
-        print(f"  • {league}: {len(matches)} matches")
+    # Print match statistics
+    total_goals = sum(match.get('gf', 0) for match in all_matches)
+    total_shots = sum(match.get('sh', 0) for match in all_matches)
+    total_shots_on_target = sum(match.get('sot', 0) for match in all_matches)
     
-    # Print top countries
-    print("\nTop 10 Countries/Regions by Match Count:")
-    top_countries = sorted(countries.items(), key=lambda x: len(x[1]), reverse=True)[:10]
-    for country, matches in top_countries:
-        print(f"  • {country}: {len(matches)} matches")
-
-def debug_response(response, filename):
-    """
-    Save API response details for debugging
-    
-    Args:
-        response: Response object from request
-        filename: File path to save debugging info
-    """
-    try:
-        with open(filename, 'w', encoding='utf-8') as f:
-            f.write(f"Status: {response.status_code}\n")
-            f.write(f"Headers: {dict(response.headers)}\n")
-            f.write(f"Content: {response.text[:1000]}...\n")
-    except Exception as e:
-        print(f"Error saving debug info: {str(e)}")
-
-def standardize_match_data(matches, date_str=None):
-    """
-    Ensure all matches have consistent fields
-    
-    Args:
-        matches: List of match dictionaries
-        date_str: Optional date string to add to each match
-        
-    Returns:
-        List of standardized match dictionaries
-    """
-    for match in matches:
-        # Add date if provided
-        if date_str and 'date' not in match:
-            match['date'] = date_str
-            
-        # Ensure all matches have common fields, even if empty
-        for field in ['id', 'home_team', 'away_team', 'league', 'country', 
-                      'start_timestamp', 'start_time', 'status', 'source']:
-            if field not in match:
-                match[field] = None
-    
-    return matches
+    print("\nMatch Statistics:")
+    print(f"  • Total Goals: {total_goals}")
+    print(f"  • Total Shots: {total_shots}")
+    print(f"  • Total Shots on Target: {total_shots_on_target}")
+    if total_shots > 0:
+        print(f"  • Shot Conversion Rate: {total_goals / total_shots:.2%}")
+    if total_shots_on_target > 0:
+        print(f"  • Shots on Target Conversion: {total_goals / total_shots_on_target:.2%}")
