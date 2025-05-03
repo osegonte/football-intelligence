@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Main script for the Football Intelligence platform.
-Retrieves football match data from FBref.
+Retrieves reliable match data from FBref with defaults for advanced stats.
 """
 import argparse
 import os
@@ -10,7 +10,7 @@ import pandas as pd
 from datetime import date, datetime, timedelta
 import logging
 from scrapers.fbref_scraper import FBrefScraper
-from scrapers.scraper_utils import save_matches_to_csv, create_data_directories, print_match_statistics
+from data_processing.db_connector import FootballDBConnector, DatabaseConnection
 
 # Configure logging
 logging.basicConfig(
@@ -24,202 +24,245 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-def fetch_historical_matches(team_name, league, num_matches=7, output_dir="data"):
-    """
-    Fetch historical matches for a specific team
+def create_data_directories(base_dir="data"):
+    """Create necessary directories for storing scraped data"""
+    dirs = {
+        "base": base_dir,
+        "teams": os.path.join(base_dir, "teams"),
+        "fixtures": os.path.join(base_dir, "fixtures"),
+        "daily": os.path.join(base_dir, "daily")
+    }
     
-    Args:
-        team_name: Name of the team
-        league: League name
-        num_matches: Number of most recent matches to fetch
-        output_dir: Directory to save matches
+    for dir_path in dirs.values():
+        os.makedirs(dir_path, exist_ok=True)
+    
+    return dirs
+
+def print_match_statistics(matches):
+    """Print summary statistics about matches"""
+    if not matches:
+        logger.info("No matches to summarize")
+        return
+    
+    if isinstance(matches, pd.DataFrame):
+        df = matches
+    else:
+        df = pd.DataFrame(matches)
+    
+    print("\n=== Match Statistics ===")
+    print(f"Total matches: {len(df)}")
+    
+    if 'competition' in df.columns:
+        print("\nCompetitions:")
+        for comp, count in df['competition'].value_counts().items():
+            print(f"  - {comp}: {count} matches")
+    
+    if 'team' in df.columns and 'opponent' in df.columns:
+        teams = pd.concat([df['team'], df['opponent']]).unique()
+        print(f"\nTotal teams: {len(teams)}")
+    
+    if 'date' in df.columns:
+        dates = pd.to_datetime(df['date'])
+        print(f"\nDate range: {dates.min().strftime('%Y-%m-%d')} to {dates.max().strftime('%Y-%m-%d')}")
+    
+    if 'gf' in df.columns:
+        print(f"\nTotal goals: {df['gf'].sum()}")
+
+def save_matches_to_csv(matches, filename):
+    """Save matches to CSV file"""
+    if isinstance(matches, list):
+        df = pd.DataFrame(matches)
+    else:
+        df = matches
+    
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    df.to_csv(filename, index=False)
+    logger.info(f"Saved {len(df)} matches to {filename}")
+
+def fetch_team_matches(team_name, league="Premier League", num_matches=7, output_dir="data"):
+    """Fetch matches for a specific team"""
+    logger.info(f"Fetching {num_matches} matches for {team_name} in {league}")
+    
+    # Initialize database connection
+    db_conn = DatabaseConnection()
+    
+    # Initialize scraper with database connection
+    scraper = FBrefScraper(db_conn)
+    
+    try:
+        # Update team in database (this will fetch and store matches)
+        match_count = scraper.update_team_in_database(team_name, league, num_matches)
         
-    Returns:
-        DataFrame with historical matches
-    """
-    logger.info(f"Fetching {num_matches} historical matches for {team_name} in {league}")
-    
-    # Initialize scraper
-    scraper = FBrefScraper()
-    
-    # Get historical matches
-    historical_df = scraper.get_recent_team_matches(team_name, league, num_matches=num_matches)
-    
-    if historical_df.empty:
-        logger.warning(f"No historical matches found for {team_name}")
+        if match_count == 0:
+            logger.warning(f"No matches found for {team_name}")
+            return None
+        
+        # Get the matches from database
+        db_conn.connect()
+        team = db_conn.get_team_by_name(team_name)
+        
+        if team:
+            team_id = team[0]
+            # Query recent matches
+            query = """
+                SELECT date, team_name as team, opponent_name as opponent, venue, 
+                       competition, round, result, gf, ga 
+                FROM team_match_stats 
+                WHERE team_id = %s 
+                ORDER BY date DESC 
+                LIMIT %s
+            """
+            matches = db_conn.execute_query(query, (team_id, num_matches))
+            
+            if matches:
+                # Convert to DataFrame
+                column_names = ['date', 'team', 'opponent', 'venue', 'competition', 'round', 'result', 'gf', 'ga']
+                matches_df = pd.DataFrame(matches, columns=column_names)
+                
+                # Save to CSV
+                csv_file = os.path.join(output_dir, "teams", f"{team_name.replace(' ', '_').lower()}_matches.csv")
+                save_matches_to_csv(matches_df, csv_file)
+                
+                return matches_df
+        
         return None
     
-    # Save to CSV
-    csv_file = os.path.join(output_dir, f"{team_name.replace(' ', '_')}_historical.csv")
-    
-    # Convert to list of dictionaries
-    historical_matches = historical_df.to_dict(orient="records")
-    
-    # Save matches
-    save_matches_to_csv(historical_matches, csv_file)
-    
-    return historical_df
+    finally:
+        db_conn.disconnect()
 
-def fetch_matches_for_date_range(start_date, end_date, leagues=None, output_dir="data"):
-    """
-    Fetch all matches for a date range
+def fetch_fixture_data(home_team, away_team, league="Premier League", num_matches=7, output_dir="data"):
+    """Fetch historical data for both teams in a fixture"""
+    logger.info(f"Fetching fixture data for {home_team} vs {away_team}")
     
-    Args:
-        start_date: Start date (datetime.date or YYYY-MM-DD string)
-        end_date: End date (datetime.date or YYYY-MM-DD string)
-        leagues: Optional list of league names to filter by
-        output_dir: Directory to save matches
-        
-    Returns:
-        DataFrame with matches for the date range
-    """
-    # Convert string dates to datetime.date if needed
-    if isinstance(start_date, str):
-        start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+    # Initialize database connection
+    db_conn = DatabaseConnection()
     
-    if isinstance(end_date, str):
-        end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
+    # Initialize scraper with database connection
+    scraper = FBrefScraper(db_conn)
     
-    logger.info(f"Fetching matches from {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}")
+    # Fetch home team data
+    home_df = fetch_team_matches(home_team, league, num_matches, output_dir)
     
-    # Initialize scraper
-    scraper = FBrefScraper()
+    # Fetch away team data
+    import time
+    time.sleep(5)  # Rate limiting
+    away_df = fetch_team_matches(away_team, league, num_matches, output_dir)
     
-    # Generate list of dates in the range
-    date_list = []
-    current_date = start_date
-    while current_date <= end_date:
-        date_list.append(current_date)
-        current_date += timedelta(days=1)
+    if home_df is None and away_df is None:
+        logger.warning("No matches found for either team")
+        return None
     
-    all_matches = []
-    all_matches_by_date = {}
+    # Create fixture directory
+    fixture_name = f"{home_team.replace(' ', '_')}_vs_{away_team.replace(' ', '_')}".lower()
+    fixture_dir = os.path.join(output_dir, "fixtures", fixture_name)
+    os.makedirs(fixture_dir, exist_ok=True)
     
-    # Process each date
-    for current_date in date_list:
-        date_str = current_date.strftime("%Y-%m-%d")
-        
-        logger.info(f"Processing date: {date_str}")
-        
-        # Fetch matches for this date
-        matches = scraper.fetch_matches_for_date(date_str, leagues)
-        
-        if matches:
-            all_matches.extend(matches)
-            all_matches_by_date[date_str] = matches
-            
-            # Save daily matches
-            daily_file = os.path.join(output_dir, "daily", f"matches_{date_str}.csv")
-            save_matches_to_csv(matches, daily_file)
-            
-            logger.info(f"Found {len(matches)} matches for {date_str}")
-        else:
-            logger.warning(f"No matches found for {date_str}")
+    # Save team data
+    if home_df is not None:
+        save_matches_to_csv(home_df, os.path.join(fixture_dir, "home_team_matches.csv"))
     
-    # Save all matches to a combined CSV file
-    if all_matches:
-        all_matches_file = os.path.join(
-            output_dir, 
-            f"all_matches_{start_date.strftime('%Y%m%d')}_to_{end_date.strftime('%Y%m%d')}.csv"
-        )
-        save_matches_to_csv(all_matches, all_matches_file)
-        
-        # Create a copy as "latest" for easy reference
-        latest_file = os.path.join(output_dir, "all_matches_latest.csv")
-        import shutil
-        if os.path.exists(all_matches_file):
-            shutil.copy2(all_matches_file, latest_file)
-        
-        logger.info(f"Saved {len(all_matches)} total matches to {all_matches_file}")
-        
-        # Return all matches as DataFrame
-        return pd.DataFrame(all_matches), all_matches_by_date
+    if away_df is not None:
+        save_matches_to_csv(away_df, os.path.join(fixture_dir, "away_team_matches.csv"))
     
-    return pd.DataFrame(), {}
+    # Combine data
+    combined_df = pd.DataFrame()
+    if home_df is not None and away_df is not None:
+        combined_df = pd.concat([home_df, away_df], ignore_index=True)
+        save_matches_to_csv(combined_df, os.path.join(fixture_dir, "combined_matches.csv"))
+    
+    return {
+        'home_team': home_df,
+        'away_team': away_df,
+        'combined': combined_df
+    }
 
 def main():
     """Main function to fetch and process football matches"""
-    parser = argparse.ArgumentParser(description="Football Match Data Collector")
+    parser = argparse.ArgumentParser(description="Football Match Data Collector - Reliable Data Only")
     
-    # Date range options for match collection
-    parser.add_argument('--start-date', type=str, help='Start date in YYYY-MM-DD format')
-    parser.add_argument('--end-date', type=str, help='End date in YYYY-MM-DD format')
-    parser.add_argument('--days', type=int, default=7, help='Number of days to fetch (default: 7)')
+    # Command options
+    subparsers = parser.add_subparsers(dest='command', help='Command to execute')
     
-    # League options
-    parser.add_argument('--leagues', type=str, nargs='+', help='Leagues to fetch (e.g. "Premier League" "La Liga")')
+    # Team command
+    team_parser = subparsers.add_parser('team', help='Fetch matches for a specific team')
+    team_parser.add_argument('--name', required=True, help='Team name')
+    team_parser.add_argument('--league', default='Premier League', help='League name')
+    team_parser.add_argument('--matches', type=int, default=7, help='Number of matches to fetch')
     
-    # Team-specific options
-    parser.add_argument('--team', type=str, help='Team to fetch historical matches for')
-    parser.add_argument('--team-league', type=str, help='League of the team')
-    parser.add_argument('--history', type=int, default=7, help='Number of historical matches to fetch (default: 7)')
+    # Fixture command
+    fixture_parser = subparsers.add_parser('fixture', help='Fetch data for a fixture')
+    fixture_parser.add_argument('--home', required=True, help='Home team name')
+    fixture_parser.add_argument('--away', required=True, help='Away team name')
+    fixture_parser.add_argument('--league', default='Premier League', help='League name')
+    fixture_parser.add_argument('--matches', type=int, default=7, help='Number of matches per team')
     
-    # Output options
+    # Common options
     parser.add_argument('--output-dir', type=str, default='data', help='Directory for output files')
-    parser.add_argument('--stats', action='store_true', help='Print detailed statistics after scraping')
+    parser.add_argument('--stats', action='store_true', help='Print match statistics')
     parser.add_argument('--quiet', action='store_true', help='Reduce output verbosity')
     
-    # Test options
-    parser.add_argument('--test', action='store_true', help='Run in test mode (limited requests)')
-    
     args = parser.parse_args()
+    
+    if not args.command:
+        parser.print_help()
+        return 1
     
     # Set log level based on verbosity option
     if args.quiet:
         logging.getLogger().setLevel(logging.WARNING)
     
     # Create data directories
-    data_dirs = create_data_directories(args.output_dir)
+    dirs = create_data_directories(args.output_dir)
     
     try:
-        # Determine date range
-        today = date.today()
-        
-        if args.start_date:
-            start_date = datetime.strptime(args.start_date, "%Y-%m-%d").date()
-        else:
-            start_date = today - timedelta(days=1)  # Default to yesterday
-        
-        if args.end_date:
-            end_date = datetime.strptime(args.end_date, "%Y-%m-%d").date()
-        else:
-            end_date = start_date + timedelta(days=args.days - 1)
-        
-        # Check if we're fetching historical team data
-        if args.team and args.team_league:
-            historical_df = fetch_historical_matches(
-                args.team, 
-                args.team_league, 
-                num_matches=args.history,
-                output_dir=args.output_dir
+        if args.command == 'team':
+            matches_df = fetch_team_matches(
+                args.name,
+                args.league,
+                args.matches,
+                args.output_dir
             )
             
-            if args.stats and historical_df is not None and not historical_df.empty:
-                print_match_statistics(historical_df.to_dict(orient="records"))
+            if args.stats and matches_df is not None and not matches_df.empty:
+                print_match_statistics(matches_df)
+            
+            if matches_df is not None and not matches_df.empty:
+                print(f"\nFetched {len(matches_df)} matches for {args.name}")
+                print(matches_df[['date', 'opponent', 'venue', 'result', 'gf', 'ga']].to_string(index=False))
         
-        # Check if we're fetching date range data
-        if not args.team or not args.team_league:
-            df, matches_by_date = fetch_matches_for_date_range(
-                start_date,
-                end_date,
-                leagues=args.leagues,
-                output_dir=args.output_dir
+        elif args.command == 'fixture':
+            fixture_data = fetch_fixture_data(
+                args.home,
+                args.away,
+                args.league,
+                args.matches,
+                args.output_dir
             )
             
-            if args.stats and not df.empty:
-                print_match_statistics(df.to_dict(orient="records"))
+            if fixture_data:
+                if args.stats:
+                    print(f"\n=== {args.home} Statistics ===")
+                    if fixture_data['home_team'] is not None:
+                        print_match_statistics(fixture_data['home_team'])
+                    print(f"\n=== {args.away} Statistics ===")
+                    if fixture_data['away_team'] is not None:
+                        print_match_statistics(fixture_data['away_team'])
+                
+                print(f"\nFixture data collected:")
+                print(f"- {args.home}: {len(fixture_data['home_team']) if fixture_data['home_team'] is not None else 0} matches")
+                print(f"- {args.away}: {len(fixture_data['away_team']) if fixture_data['away_team'] is not None else 0} matches")
         
-        logger.info("Scraping completed successfully")
+        logger.info("Data collection completed successfully")
+        return 0
         
     except KeyboardInterrupt:
         logger.warning("Operation canceled by user")
+        return 1
     except Exception as e:
         logger.error(f"Error: {str(e)}")
         import traceback
         logger.error(traceback.format_exc())
         return 1
-    
-    return 0
 
 if __name__ == "__main__":
     sys.exit(main())
